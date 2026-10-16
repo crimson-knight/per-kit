@@ -38,7 +38,8 @@ Before you ask the owner anything:
 Also scan the owner's recent messages for the "repeating myself" signal: phrases such as
 "again", "like I said", "as I mentioned", or a correction that restates an earlier one.
 On a hit, say so plainly ("I think I missed X; you said Y earlier"), fix the plan, and
-save the resolution as a preference with an "Applies when:" line.
+write the resolution under OPEN_QUESTIONS as a proposed preference with an "Applies when:"
+line. After the owner approves the plan, append it to `workspace/preferences.md`.
 
 ## Step 4: Break it into milestones
 

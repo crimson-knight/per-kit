@@ -12,8 +12,9 @@ INPUTS:
 
 DONE MEANS:
 - `output/triage.md`: a table with every message: file name, sender, subject, bucket, and
-  a one-line reason. Buckets: reply today (needs the owner's action or answer by the end
-  of the next business day), this week, delegate (name the role, such as "crew lead" or
+  a one-line reason. Buckets: reply today (the owner must act today: a safety or
+  property-damage issue, an unhappy paying customer, or a deadline before the end of the
+  next business day), this week, delegate (name the role, such as "crew lead" or
   "bookkeeper"), archive.
 - `output/replies/`: one draft reply per "reply today" message, named after the message
   file with `.md` in place of `.txt`, with `To:`, `Subject:`, and the body.

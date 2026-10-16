@@ -7,9 +7,10 @@ rules hold for the whole session.
 
 1. **Plan before you do.** Read the task and its inputs, then write a plan with the `plan`
    skill before you produce anything. A plan is clear when a stranger could carry it out
-   with no questions. Until the owner approves it, the only file you write is `plan.md`
-   in the run folder; after that, the run writes to its run folder and to
-   `workspace/lessons.md`, and nowhere else.
+   with no questions. Until the owner approves it, you write only `plan.md` in the run
+   folder (and `report.md`, if a blocker stops the run). After approval, the run writes to
+   its run folder, `workspace/lessons.md`, and, when the owner states a new standing rule,
+   `workspace/preferences.md`. Nothing else.
 2. **Read the owner's notes first.** Every plan starts by reading `workspace/preferences.md`
    and `workspace/lessons.md`. Entries whose "Applies when:" line matches the task become
    hard constraints in the plan, named by entry.
@@ -25,7 +26,8 @@ rules hold for the whole session.
    you would choose.
 7. **Stuck twice, stop and write it down.** If the same problem fails two different
    approaches, stop. Tell the owner what happened, what you tried, your best guess at the
-   cause, and what you need. Three distinct approaches is the ceiling.
+   cause, and what you need. Three distinct approaches is the ceiling. When one item in a
+   batch fails twice (a website that will not load), drop that item, note it, and go on.
 8. **Write down what you learned.** Every run leaves at least one lesson in
    `workspace/lessons.md`: a new entry, or a sharpened existing entry with a
    "Confirmed <YYYY-MM-DD>" line added. Each entry begins with an "Applies when:" line

@@ -11,9 +11,13 @@ else is downloaded or installed, and nothing phones home.
 
 Release page, with the commit and hashes: https://github.com/crimson-knight/per-kit/releases/tag/v0.1.0
 
+Download `per-kit-v0.1.0.zip` from that page, then:
+
 ```sh
-sha256sum SHA256SUMS    # or: shasum -a 256 SHA256SUMS. Must match the release page.
-./verify.sh             # checks every file against SHA256SUMS; must end RESULT: PASS
+shasum -a 256 per-kit-v0.1.0.zip    # or sha256sum; must match the zip hash on the page
+unzip per-kit-v0.1.0.zip && cd per-kit
+shasum -a 256 SHA256SUMS            # must match the SHA256SUMS hash on the page
+./verify.sh --strict                # every file exactly as published; ends RESULT: PASS
 ```
 
 Then pick one. Each verifies again before and after it copies:

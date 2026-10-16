@@ -10,7 +10,8 @@
 #
 # --codex copies the four skills into .agents/skills/ inside the kit folder, where Codex
 # looks for project skills. Nothing is written to your home folder or global settings.
-# Every step runs ./verify.sh first and stops on any failure (fail closed).
+# Copying runs ./verify.sh --strict on the source and on the copy, so only an exact,
+# unedited kit is copied. Every step stops on any failure (fail closed).
 
 set -eu
 
@@ -35,7 +36,11 @@ if [ "$codex" -eq 0 ] && [ -z "$dest" ]; then
 fi
 
 printf '== Verifying the kit in %s\n' "$SRC_DIR"
-"$SRC_DIR/verify.sh"
+if [ -n "$dest" ]; then
+  "$SRC_DIR/verify.sh" --strict
+else
+  "$SRC_DIR/verify.sh"
+fi
 
 target="$SRC_DIR"
 if [ -n "$dest" ]; then
@@ -65,7 +70,11 @@ if [ "$codex" -eq 1 ]; then
 fi
 
 printf '== Verifying the installed copy\n'
-"$target/verify.sh"
+if [ -n "$dest" ]; then
+  "$target/verify.sh" --strict
+else
+  "$target/verify.sh"
+fi
 
 printf '\nReady. Next:\n  cd %s\n' "$target"
 if [ "$codex" -eq 1 ]; then

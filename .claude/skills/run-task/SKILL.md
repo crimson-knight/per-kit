@@ -25,6 +25,10 @@ the summary and ask one question: "Go ahead with this plan?" (recommended: yes).
 the answer, then set `APPROVED:` and `PLANNING_MINUTES:` in the plan. If the owner said up front to go ahead
 without stopping, set `APPROVED: yes (given up front), <time>` and continue.
 
+If something stops the run before it starts (no web access for a web task, a missing
+input file), write `report.md` now: the blocker under "Needs your decision", "none" for
+the outputs, and the last two sections as usual. Then tell the owner and stop.
+
 ## 3. Execute and reflect, milestone by milestone
 
 For each milestone in order: follow `.claude/skills/execute/SKILL.md`, then
@@ -52,8 +56,8 @@ Run folder: <path>    Started: <time>    Finished: <time>
 ## Checks performed
 <each reflect check: what was checked, how, and the result, with counts>
 
-## Lessons recorded
-<the titles of the entries appended to workspace/lessons.md>
+## Lessons added or confirmed
+<the titles of the entries added to, or confirmed in, workspace/lessons.md>
 
 ## Estimated vs actual time
 | Step | Agent estimate (min) | Agent actual (min) |

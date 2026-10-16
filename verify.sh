@@ -1,17 +1,20 @@
 #!/bin/sh
 # verify.sh: check that this copy of the PER kit matches the published file hashes.
 #
-# Usage: ./verify.sh
+# Usage: ./verify.sh            check a working copy (your own edits to the notes are allowed)
+#        ./verify.sh --strict   check a fresh download: every file exactly as published
 #
 # Checks, in order:
 #   1. A SHA-256 tool is available (sha256sum, or shasum -a 256).
 #   2. Every file listed in SHA256SUMS exists and matches its hash. The two notes files
 #      you are meant to edit (workspace/preferences.md, workspace/lessons.md) are
-#      reported as "edited by you" when they differ; any other mismatch fails.
+#      reported as "edited by you" when they differ (a failure with --strict); any
+#      other mismatch fails.
 #   3. Every file outside workspace/ is listed in SHA256SUMS and none is a symlink, so no
 #      unlisted skill, script, or instruction file can ride along. Allowed extras:
-#      .claude/settings.local.json (Claude Code writes it when you approve a permission)
-#      and the four .agents/skills copies that install.sh --codex makes.
+#      .claude/settings.local.json (Claude Code writes it when you approve a permission;
+#      a failure with --strict) and the four .agents/skills copies that install.sh
+#      --codex makes.
 #   4. Each skill has a SKILL.md whose name matches its folder and that has a description.
 #   5. Each shipped task has GOAL, INPUTS, DONE MEANS, and LIMITS.
 #   6. If install.sh --codex was run, .agents/skills matches .claude/skills exactly.
@@ -21,6 +24,12 @@
 # the SHA-256 of SHA256SUMS itself, printed at the end, which must match the release page.
 
 set -u
+strict=0
+case "${1:-}" in
+  --strict) strict=1 ;;
+  '') ;;
+  *) printf 'usage: ./verify.sh [--strict]\n' >&2; exit 2 ;;
+esac
 LC_ALL=C
 export LC_ALL
 
@@ -102,7 +111,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   fi
   if [ "$actual" = "$expected" ]; then
     :
-  elif is_user_file "$path"; then
+  elif [ "$strict" -eq 0 ] && is_user_file "$path"; then
     note "edited by you (allowed): $path"
   else
     fail "hash mismatch: $path"
@@ -139,7 +148,11 @@ while IFS= read -r f; do
   fi
   case "$f" in
     .claude/settings.local.json)
-      note "your Claude Code permission choices (allowed): $f" ;;
+      if [ "$strict" -eq 1 ]; then
+        fail "not part of a fresh download: $f"; unlisted_bad=1
+      else
+        note "your Claude Code permission choices (allowed): $f"
+      fi ;;
     .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
     *) fail "unlisted file outside workspace/: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
   esac
@@ -189,6 +202,7 @@ sums_hash=$(hash_file SHA256SUMS)
 printf '\nSHA256SUMS sha256: %s\n' "$sums_hash"
 printf 'Compare it with the value on the release page before you trust this copy.\n'
 if [ "$failures" -eq 0 ]; then
+  [ "$strict" -eq 1 ] && printf 'Mode: --strict (every file exactly as published)\n'
   printf 'RESULT: PASS\n'
   exit 0
 fi
