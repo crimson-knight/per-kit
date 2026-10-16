@@ -141,7 +141,7 @@ while IFS= read -r f; do
     .claude/settings.local.json)
       note "your Claude Code permission choices (allowed): $f" ;;
     .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
-    *) fail "unlisted file outside workspace/: $f"; unlisted_bad=1 ;;
+    *) fail "unlisted file outside workspace/: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
   esac
 done < "$scan"
 [ "$unlisted_bad" -eq 0 ] && pass "no unlisted files or symlinks outside workspace/"

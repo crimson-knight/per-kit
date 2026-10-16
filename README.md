@@ -28,7 +28,7 @@ Then pick one. Each verifies again before and after it copies:
 ```sh
 cd ~/per-kit
 claude                                                # then type: /run-task workspace/tasks/invoice-follow-up
-codex "run-task workspace/tasks/invoice-follow-up"    # Codex
+codex "run-task workspace/tasks/invoice-follow-up"    # Codex (say yes when it asks to trust the folder)
 ```
 
 The agent writes a plan, asks "go ahead?", runs each milestone, checks every draft against
