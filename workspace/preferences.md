@@ -18,5 +18,5 @@ wrong, flag it for me and leave that customer's draft out.
 
 ## How I want results
 Applies when: finishing any task run.
-Lead the report with what needs my decision, most important first. Put every output in one
-folder, and keep summaries to one screen.
+Lead the report with what needs my decision, most important first. Keep everything from a
+run in its run folder, and keep summaries to one screen.

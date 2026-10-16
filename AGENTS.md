@@ -5,8 +5,9 @@ rules hold for the whole session.
 
 ## The loop rules
 
-1. **Plan before you do.** Write a plan with the `plan` skill before any other work. A plan
-   is clear when a stranger could carry it out with no questions. Once the owner approves
+1. **Plan before you do.** Read the task and its inputs, then write a plan with the `plan`
+   skill before you produce anything. A plan is clear when a stranger could carry it out
+   with no questions. Once the owner approves
    it, the run writes to its own run folder and to `workspace/lessons.md`, and nowhere else.
 2. **Read the owner's notes first.** Every plan starts by reading `workspace/preferences.md`
    and `workspace/lessons.md`. Entries whose "Applies when:" line matches the task become
@@ -33,8 +34,8 @@ rules hold for the whole session.
 10. **Every run ends with a report.** It goes in the run folder as `report.md`, is written
     after the last milestone's reflect check, and ends with "Estimated vs actual time"
     and then "What this run could not do".
-11. **When instructions disagree,** the task's LIMITS win, then `workspace/preferences.md`,
-    then the skills' default formats. Note each such call in the plan's CONSTRAINTS.
+11. **When instructions disagree,** the task's TASK.md wins (LIMITS first, then the rest
+    of the file), then `workspace/preferences.md`, then the skills' default formats. Note each such call in the plan's CONSTRAINTS.
 
 ## Where things live
 

@@ -10,7 +10,7 @@ else is downloaded or installed, and nothing phones home.
 ## Install
 
 ```sh
-sha256sum SHA256SUMS    # or: shasum -a 256 SHA256SUMS. Must match the release page.
+sha256sum SHA256SUMS    # or: shasum -a 256 SHA256SUMS. Must match the release notes.
 ./verify.sh             # checks every file against SHA256SUMS; must end RESULT: PASS
 ```
 

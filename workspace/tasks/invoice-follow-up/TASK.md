@@ -17,8 +17,9 @@ TIERS (by days past the due date on the as-of date):
 - 7 to 29 days: friendly reminder.
 - 30 to 59 days: firm reminder that names the original due date and asks for a payment
   date.
-- 60 days or more: final notice that says this is the last reminder before a phone call,
-  and asks for one thing: a payment date, or a time for a call to set up a payment plan.
+- 60 days or more: final notice that asks for one thing: a payment date, or a time for a
+  call to set up a payment plan. The CSV has no contact history, so the draft mentions
+  only the invoice facts, never earlier reminders or calls.
 
 DONE MEANS:
 - `output/drafts/`: one Markdown file per customer who needs an email, named

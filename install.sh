@@ -6,7 +6,7 @@
 #   ./install.sh <new-folder>            copy the verified kit into <new-folder>
 #   ./install.sh --codex <new-folder>    both
 #
-# Claude Code users need none of this: run ./verify.sh, then `claude` in this folder.
+# Claude Code users can also skip it and work in place: ./verify.sh, then `claude` here.
 #
 # --codex copies the four skills into .agents/skills/ inside the kit folder, where Codex
 # looks for project skills. Nothing is written to your home folder or global settings.

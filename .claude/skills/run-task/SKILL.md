@@ -51,14 +51,14 @@ Run folder: <path>    Started: <time>    Finished: <time>
 <the titles of the entries appended to workspace/lessons.md>
 
 ## Estimated vs actual time
-| Step | Estimated (min) | Actual (min) |
+| Step | Agent estimate (min) | Agent actual (min) |
 |---|---|---|
 | Planning | n/a | <PLANNING_MINUTES> |
 | M1 ... | | |
 | Total agent time (planning plus milestones) | | |
-| A person doing this by hand (estimate) | <MANUAL_ESTIMATE_MINUTES> | n/a |
 
-Waiting for the owner's "go ahead" is excluded from agent time.
+A person doing this by hand: about <MANUAL_ESTIMATE_MINUTES> minutes (from TASK.md).
+Agent time excludes waiting for the owner's "go ahead".
 
 <one sentence: the gap between the estimate and the actual, and why>
 

@@ -22,7 +22,7 @@ questions. That is the bar.
 3. Write each one into the plan's CONSTRAINTS list, citing the entry's heading. A plan
    with an empty CONSTRAINTS list has skipped this step; when nothing matches, write
    "none matched" and name the files you read.
-4. When instructions disagree, the task's LIMITS win, then preferences.md, then the
+4. When instructions disagree, the TASK.md wins (LIMITS first), then preferences.md, then the
    skills' default formats (for example, a preference about report order changes the
    run report's section order). Record each such call in CONSTRAINTS. If a preference
    conflicts with the goal itself, put it in OPEN_QUESTIONS.
@@ -73,7 +73,7 @@ Write it to the run folder (`workspace/runs/<task>-<YYYYMMDD-HHMM>/plan.md`), or
 ```
 # PLAN: <goal>
 STARTED: <date and time, from the `date` command>
-PLANNING_MINUTES: <time from STARTED until the plan was shown>
+PLANNING_MINUTES: <time from STARTED until you asked "Go ahead with this plan?">
 APPROVED: <"yes, <time>" once the owner says go ahead; "pending" until then>
 GOAL: <one sentence>
 DONE_MEANS: <definition of done>
