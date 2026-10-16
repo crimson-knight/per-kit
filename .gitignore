@@ -1,0 +1,6 @@
+# Run output stays local to your copy of the kit.
+workspace/runs/*
+!workspace/runs/.gitkeep
+# Created by install.sh --codex.
+.agents/
+.DS_Store

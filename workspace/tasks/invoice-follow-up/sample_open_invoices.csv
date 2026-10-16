@@ -1,0 +1,15 @@
+invoice_number,customer_name,contact_name,contact_email,invoice_date,due_date,amount,amount_paid,balance,status
+INV-1019,Halverson Auto Body,Erik Halverson,erik@halversonauto.example,2026-06-15,2026-07-15,1480.00,0.00,1480.00,open
+INV-1022,Brightwater Cafe,Priya Natarajan,priya@brightwatercafe.example,2026-07-01,2026-07-31,675.50,0.00,675.50,open
+INV-1022,Kestrel Yoga Studio,Mona Haddad,mona@kestrelyoga.example,2026-07-02,2026-08-01,410.00,0.00,410.00,open
+INV-1027,Westbrook Library Friends,Gail Simmons,gail@westbrookfriends.example,2026-07-20,2026-08-19,-150.00,0.00,-150.00,open
+INV-1030,Greenleaf Property Management,Tom Becker,ap@greenleafpm.example,2026-07-21,2026-08-20,5200.00,0.00,5200.00,open
+INV-1033,Riverside Montessori,Alice Wu,office@riversidemontessori.example,2026-08-01,2026-08-31,940.00,940.00,0.00,open
+INV-1035,Northgate Fitness,Jordan Pike,,2026-08-10,2026-09-09,1125.00,0.00,1125.00,open
+INV-1038,Cedar Ridge HOA,Luis Ferreira,board@cedarridgehoa.example,2026-08-01,2026-08-31,3850.00,1000.00,2850.00,open
+INV-1039,Cedar Ridge HOA,Luis Ferreira,board@cedarridgehoa.example,2026-08-06,2026-09-05,920.00,0.00,920.00,open
+INV-1040,Lakeview Veterinary Clinic,Hannah Cole,billing@lakeviewvet.example,2026-08-26,2026-09-25,860.00,200.00,660.00,open
+INV-1041,Maple Street Dental,Dana Okafor,dana@maplestreetdental.example,2026-09-01,2026-10-01,1240.00,0.00,1240.00,open
+INV-1042,Pinecrest Realty,Marcus Lee,marcus@pinecrestrealty.example,2026-09-03,2026-10-03,2100.00,500.00,1800.00,open
+INV-1044,Oak & Ember Bistro,Sofia Marchetti,sofia@oakandember.example,2026-09-10,2026-10-10,780.00,0.00,780.00,open
+INV-1046,Summit Physical Therapy,Ray Nguyen,frontdesk@summitpt.example,2026-10-02,2026-11-01,1310.00,0.00,1310.00,open

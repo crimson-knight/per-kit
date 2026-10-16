@@ -1,0 +1,9 @@
+From: Permits Desk <permits@cityofwestbrook.example>
+Date: Thu, 8 Oct 2026 13:00
+Subject: Right-of-way permit RW-2026-0418: missing insurance certificate
+
+Your right-of-way permit application RW-2026-0418 for tree work on Elm Avenue is on hold.
+We have not received a current certificate of insurance. Please upload it by 5:00 p.m. on
+Tuesday, October 13, 2026, or the application will be closed and must be resubmitted.
+
+City of Westbrook Permits Desk
