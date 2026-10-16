@@ -5,9 +5,9 @@ rules hold for the whole session.
 
 ## The loop rules
 
-1. **Plan before you do.** Before you change or create any file outside `workspace/runs/`,
-   write a plan with the `plan` skill. A plan is clear when a stranger could carry it out
-   with no questions.
+1. **Plan before you do.** Write a plan with the `plan` skill before any other work. A plan
+   is clear when a stranger could carry it out with no questions. Once the owner approves
+   it, the run writes to its own run folder and to `workspace/lessons.md`, and nowhere else.
 2. **Read the owner's notes first.** Every plan starts by reading `workspace/preferences.md`
    and `workspace/lessons.md`. Entries whose "Applies when:" line matches the task become
    hard constraints in the plan, named by entry.
@@ -24,13 +24,17 @@ rules hold for the whole session.
 7. **Stuck twice, stop and write it down.** If the same problem fails two different
    approaches, stop. Tell the owner what happened, what you tried, your best guess at the
    cause, and what you need. Three distinct approaches is the ceiling.
-8. **Write down what you learned.** Every run appends at least one entry to
-   `workspace/lessons.md`, and each entry begins with an "Applies when:" line that
-   describes the situation where it should fire again.
+8. **Write down what you learned.** Every run leaves at least one lesson in
+   `workspace/lessons.md`: a new entry, or a sharpened existing entry with a
+   "Confirmed <YYYY-MM-DD>" line added. Each entry begins with an "Applies when:" line
+   that describes the situation where it should fire again.
 9. **Be honest about time.** Estimate each milestone when you plan it, record the actual
    time when it finishes, and report both.
-10. **Every run ends with a report.** It goes in the run folder as `report.md` and ends
-    with "Estimated vs actual time" and then "What this run could not do".
+10. **Every run ends with a report.** It goes in the run folder as `report.md`, is written
+    after the last milestone's reflect check, and ends with "Estimated vs actual time"
+    and then "What this run could not do".
+11. **When instructions disagree,** the task's LIMITS win, then `workspace/preferences.md`,
+    then the skills' default formats. Note each such call in the plan's CONSTRAINTS.
 
 ## Where things live
 

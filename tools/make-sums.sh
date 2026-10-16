@@ -20,6 +20,17 @@ else
   hasher="shasum -a 256"
 fi
 
+# verify.sh reads one path per line, so only plain names are supported.
+if git ls-files | grep -q '^"'; then
+  printf 'make-sums.sh: a tracked file name has quotes, backslashes, newlines, or other\n' >&2
+  printf 'special characters; rename it to letters, digits, dot, dash, underscore, slash\n' >&2
+  exit 1
+fi
+if git ls-files | grep -q '[^A-Za-z0-9._/&-]'; then
+  printf 'make-sums.sh: a tracked file name has characters outside A-Z a-z 0-9 . _ - / &\n' >&2
+  exit 1
+fi
+
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 git ls-files | grep -v '^SHA256SUMS$' | sort | while IFS= read -r f; do

@@ -12,11 +12,11 @@ points, no "just checking in", and one clear ask per message.
 
 ## Money and dates
 Applies when: a draft or table mentions an amount owed, an invoice number, or a due date.
-Copy amounts and invoice numbers exactly from the source file, with the currency symbol and
-two decimals ($1,240.00). Write dates as "October 12, 2026". When the source data looks
+Copy amounts and invoice numbers from the source file with the same value, written with the
+currency symbol, thousands separator, and two decimals (1240.00 becomes $1,240.00). Write dates as "October 12, 2026". When the source data looks
 wrong, flag it for me and leave that customer's draft out.
 
 ## How I want results
 Applies when: finishing any task run.
-Lead the report with the three things that need my decision. Put every output in one
+Lead the report with what needs my decision, most important first. Put every output in one
 folder, and keep summaries to one screen.

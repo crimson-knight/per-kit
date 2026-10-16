@@ -42,7 +42,7 @@ WHY IT BROKE: <root cause>
 
 ## Step 5: Write a lesson
 
-At least once per run, append an entry to `workspace/lessons.md`:
+Every run leaves at least one lesson in `workspace/lessons.md`. Add a new entry:
 
 ```
 ## <short title> (<YYYY-MM-DD>)
@@ -52,8 +52,9 @@ from a CSV export where one customer has several open invoices">
 ```
 
 Describe the situation in the "Applies when:" line, so a future plan finds it by
-matching its own situation. Skip a lesson that is already in the file; sharpen the
-existing entry instead.
+matching its own situation. When the lesson is already in the file, sharpen that entry
+in place and add a line "Confirmed <YYYY-MM-DD>" under it; that counts as this run's
+lesson.
 
 ## Step 6: Decide the next action
 

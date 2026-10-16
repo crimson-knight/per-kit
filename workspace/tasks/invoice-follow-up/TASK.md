@@ -12,27 +12,34 @@ INPUTS:
 - The business sending the reminders is Harbor & Pine Landscaping (see preferences.md).
 
 TIERS (by days past the due date on the as-of date):
-- 0 to 6 days past due, or not yet due: no email; list it in the summary as "not yet".
+- Not yet due: no email; summary tier "not due", days column "due in N days".
+- 0 to 6 days past due: no email; summary tier "grace period".
 - 7 to 29 days: friendly reminder.
 - 30 to 59 days: firm reminder that names the original due date and asks for a payment
   date.
-- 60 days or more: final notice that says the account is paused for new work until it is
-  settled, and offers a call to set up a payment plan.
+- 60 days or more: final notice that says this is the last reminder before a phone call,
+  and asks for one thing: a payment date, or a time for a call to set up a payment plan.
 
 DONE MEANS:
 - `output/drafts/`: one Markdown file per customer who needs an email, named
   `<customer-name-slug>.md`, with To, Subject, and Body. A customer with several overdue
   invoices gets one email that lists each invoice, at the tier of the oldest one.
 - `output/summary.md`: a table with every row of the CSV: invoice, customer, balance, due
-  date, days overdue, tier (or "not yet" or "held: data problem"), and a total of the
-  balances in each tier.
+  date, days overdue, and tier (friendly, firm, final, grace period, not due, or "held:
+  data problem"), then the total of the balances for each of those six groups, with held
+  rows counted only under "held". The six totals add up to the CSV's total balance.
 - `output/data-problems.md`: every row that looks wrong, the reason, and what the owner
-  should check. Rows with a data problem get no draft until the owner confirms them.
-- Every amount, invoice number, and due date in every draft matches the CSV exactly.
+  should check. Rows with a data problem get no draft until the owner confirms them. When
+  an invoice number appears on more than one row, every row with that number is held.
+- Every draft quotes each invoice's balance (and, when part is paid, the amount
+  received), and every amount, invoice number, and due date has the same value as the
+  CSV. Drafts contain only per-invoice figures from the CSV: no computed totals.
 
 LIMITS:
 - Drafts only. Nothing is sent, and no system outside this folder is touched.
-- Use only the facts in the CSV and preferences.md. No late fees, interest, or legal
-  language unless preferences.md asks for them.
+- Use only the facts in the CSV, this file, and preferences.md. Charge no late fees or
+  interest and use no legal language unless preferences.md asks for them.
+- To use your own export: replace the CSV, set the AS-OF DATE above, change the sender
+  business name above, and update the sign-off in preferences.md.
 
 TIME: a person doing this by hand takes about 45 minutes a week.

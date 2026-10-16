@@ -8,9 +8,10 @@
 #   2. Every file listed in SHA256SUMS exists and matches its hash. The two notes files
 #      you are meant to edit (workspace/preferences.md, workspace/lessons.md) are
 #      reported as "edited by you" when they differ; any other mismatch fails.
-#   3. Every file outside workspace/ is listed in SHA256SUMS, so no unlisted skill,
-#      script, or instruction file can ride along. (.claude/settings.local.json, which
-#      Claude Code writes when you approve a permission, is reported and allowed.)
+#   3. Every file outside workspace/ is listed in SHA256SUMS and none is a symlink, so no
+#      unlisted skill, script, or instruction file can ride along. Allowed extras:
+#      .claude/settings.local.json (Claude Code writes it when you approve a permission)
+#      and the four .agents/skills copies that install.sh --codex makes.
 #   4. Each skill has a SKILL.md whose name matches its folder and that has a description.
 #   5. Each shipped task has GOAL, INPUTS, DONE MEANS, and LIMITS.
 #   6. If install.sh --codex was run, .agents/skills matches .claude/skills exactly.
@@ -33,10 +34,10 @@ fail() { printf 'FAIL  %s\n' "$1"; failures=$((failures + 1)); }
 
 # 1. Hash tool
 if command -v sha256sum >/dev/null 2>&1; then
-  hash_file() { sha256sum "$1" | awk '{print $1}'; }
+  hash_file() { _h=$(sha256sum < "$1") || return 1; printf '%s\n' "${_h%% *}"; }
   pass "hash tool: sha256sum"
 elif command -v shasum >/dev/null 2>&1; then
-  hash_file() { shasum -a 256 "$1" | awk '{print $1}'; }
+  hash_file() { _h=$(shasum -a 256 < "$1") || return 1; printf '%s\n' "${_h%% *}"; }
   pass "hash tool: shasum -a 256"
 else
   fail "no SHA-256 tool found (need sha256sum or shasum)"
@@ -58,6 +59,19 @@ is_user_file() {
   esac
 }
 
+has_symlink_part() {
+  _rest=$1; _acc=""
+  while [ -n "$_rest" ]; do
+    case "$_rest" in
+      */*) _part=${_rest%%/*}; _rest=${_rest#*/} ;;
+      *) _part=$_rest; _rest="" ;;
+    esac
+    _acc=${_acc:+$_acc/}$_part
+    [ -L "$_acc" ] && return 0
+  done
+  return 1
+}
+
 listed=0
 bad_lines=0
 while IFS= read -r line || [ -n "$line" ]; do
@@ -71,11 +85,21 @@ while IFS= read -r line || [ -n "$line" ]; do
     bad_lines=$((bad_lines + 1)); continue
   fi
   listed=$((listed + 1))
+  case "/$path/" in
+    *'/../'*|*'/./'*|'//'*|*'//'*) fail "unsafe path in SHA256SUMS: $path"; continue ;;
+  esac
+  if has_symlink_part "$path"; then
+    fail "symlink in listed path: $path"
+    continue
+  fi
   if [ ! -f "$path" ]; then
     fail "missing: $path"
     continue
   fi
-  actual=$(hash_file "$path")
+  if ! actual=$(hash_file "$path") || [ ${#actual} -ne 64 ]; then
+    fail "cannot read: $path"
+    continue
+  fi
   if [ "$actual" = "$expected" ]; then
     :
   elif is_user_file "$path"; then
@@ -93,27 +117,34 @@ else
   pass "checked $listed listed files against SHA256SUMS"
 fi
 
-# 3. Unlisted files outside workspace/
-unlisted=$(find . -type f \
-    ! -path './.git/*' ! -path './.agents/*' ! -path './workspace/*' \
-    ! -name '.DS_Store' ! -name 'SHA256SUMS' -print | sed 's#^\./##' | sort |
-  while IFS= read -r f; do
-    if ! awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then
-      printf '%s\n' "$f"
-    fi
-  done)
-if [ -n "$unlisted" ]; then
-  printf '%s\n' "$unlisted" | while IFS= read -r f; do
-    if [ "$f" = ".claude/settings.local.json" ]; then
-      printf 'NOTE  %s\n' "your Claude Code permission choices (allowed): $f"
-    else
-      printf 'FAIL  %s\n' "unlisted file outside workspace/: $f"
-    fi
-  done
-  extra=$(printf '%s\n' "$unlisted" | grep -vc '^\.claude/settings\.local\.json$')
-  failures=$((failures + extra))
+# 3. Unlisted files and symlinks outside workspace/
+# Anything Claude Code or Codex could load as instructions must be listed. The only
+# allowed extras are your Claude Code permission file and the four Codex skill copies
+# that install.sh --codex makes (checked against .claude/skills in step 6).
+scan=$(mktemp) || { fail "cannot create a temporary file"; exit 1; }
+trap 'rm -f "$scan"' EXIT
+if ! find . \( -path './.git' -o -path './workspace' \) -prune -o \
+     \( -type f -o -type l \) ! -name '.DS_Store' -print > "$scan"; then
+  fail "could not list every file in the kit (unreadable folder?)"
 fi
-[ -z "$unlisted" ] || [ "${extra:-0}" -eq 0 ] && pass "no unlisted files outside workspace/"
+unlisted_bad=0
+while IFS= read -r f; do
+  f=${f#./}
+  [ "$f" = "SHA256SUMS" ] && continue
+  if [ -L "$f" ]; then
+    fail "symlink outside workspace/: $f"; unlisted_bad=1; continue
+  fi
+  if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then
+    continue
+  fi
+  case "$f" in
+    .claude/settings.local.json)
+      note "your Claude Code permission choices (allowed): $f" ;;
+    .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
+    *) fail "unlisted file outside workspace/: $f"; unlisted_bad=1 ;;
+  esac
+done < "$scan"
+[ "$unlisted_bad" -eq 0 ] && pass "no unlisted files or symlinks outside workspace/"
 
 # 4. Skills
 for name in plan execute reflect run-task; do

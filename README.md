@@ -10,18 +10,23 @@ else is downloaded or installed, and nothing phones home.
 ## Install
 
 ```sh
-shasum -a 256 SHA256SUMS      # must match the value on the release page
-./verify.sh                   # every file checked against SHA256SUMS; ends RESULT: PASS
-./install.sh ~/per-kit        # optional: copy a verified kit to a working folder
-./install.sh --codex          # Codex only: add the skills to .agents/skills (also with a folder)
+sha256sum SHA256SUMS    # or: shasum -a 256 SHA256SUMS. Must match the release page.
+./verify.sh             # checks every file against SHA256SUMS; must end RESULT: PASS
+```
+
+Then pick one. Each verifies again before and after it copies:
+
+```sh
+./install.sh ~/per-kit            # Claude Code: a verified working copy (or work in place)
+./install.sh --codex ~/per-kit    # Codex: the same, plus the skills in .agents/skills
 ```
 
 ## First run
 
 ```sh
-cd ~/per-kit                  # or wherever the kit lives
-claude                        # then type: /run-task workspace/tasks/invoice-follow-up
-codex "run-task workspace/tasks/invoice-follow-up"     # the Codex equivalent
+cd ~/per-kit
+claude                                                # then type: /run-task workspace/tasks/invoice-follow-up
+codex "run-task workspace/tasks/invoice-follow-up"    # Codex
 ```
 
 The agent writes a plan, asks "go ahead?", runs each milestone, checks every draft against
@@ -38,6 +43,8 @@ the CSV, appends a lesson, and writes a report. Results land in
 | `workspace/lessons.md` | grows by one or more "Applies when:" entries per run |
 | `workspace/tasks/` | invoice follow-up, lead list research (needs web access), content repurposing, inbox triage, and `_template/` for your own |
 | `NEXT-STEPS.md` | connecting real systems, scheduled runs, panel planning |
+| `verify.sh`, `install.sh` | integrity check and installer (`tools/` is for kit maintainers) |
 
-Your own data: replace a task's sample file, or copy `_template/`. Every report ends with
+Your own data: set your name and sign-off in `preferences.md`, then replace a task's
+sample file and follow the note in its TASK.md, or copy `_template/`. Every report ends with
 estimated vs actual time and what the run could not do.

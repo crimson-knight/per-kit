@@ -22,7 +22,10 @@ questions. That is the bar.
 3. Write each one into the plan's CONSTRAINTS list, citing the entry's heading. A plan
    with an empty CONSTRAINTS list has skipped this step; when nothing matches, write
    "none matched" and name the files you read.
-4. If a preference conflicts with the goal, put the conflict in OPEN_QUESTIONS.
+4. When instructions disagree, the task's LIMITS win, then preferences.md, then the
+   skills' default formats (for example, a preference about report order changes the
+   run report's section order). Record each such call in CONSTRAINTS. If a preference
+   conflicts with the goal itself, put it in OPEN_QUESTIONS.
 
 ## Step 3: Check before you ask
 
@@ -49,12 +52,12 @@ Each milestone is a unit one doer can finish and a checker can verify:
   doer: <you, or a sub-agent if your tool supports one>
   depends_on: [<milestone ids, or none>]
   assumptions: [<what you are assuming; reflect tests each one>]
-  estimate_minutes: <your honest estimate>
+  estimate_minutes: <your honest estimate of YOUR time, not a person's>
   status: todo
 ```
 
-Three to five milestones suits most business tasks. The last milestone writes the run
-report.
+Three to five milestones suits most business tasks. The run report is written after the
+last milestone's reflect check, so it is not a milestone of its own.
 
 ## Step 5: Self-check
 
@@ -70,12 +73,14 @@ Write it to the run folder (`workspace/runs/<task>-<YYYYMMDD-HHMM>/plan.md`), or
 ```
 # PLAN: <goal>
 STARTED: <date and time, from the `date` command>
+PLANNING_MINUTES: <time from STARTED until the plan was shown>
+APPROVED: <"yes, <time>" once the owner says go ahead; "pending" until then>
 GOAL: <one sentence>
 DONE_MEANS: <definition of done>
 LIMITS: <from the TASK.md, or "none stated">
 CONSTRAINTS:
   - <rule applied> (source: preferences.md "<heading>" or lessons.md "<heading>")
-MANUAL_ESTIMATE_MINUTES: <how long a person would take to do this by hand>
+MANUAL_ESTIMATE_MINUTES: <how long a person would take by hand; use the TASK.md TIME line>
 MILESTONES:
   <the milestone blocks from Step 4>
 LEARNINGS:

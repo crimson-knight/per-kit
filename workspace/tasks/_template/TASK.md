@@ -1,7 +1,9 @@
 # Task: <name>
 
 Copy this folder to `workspace/tasks/<your-task-name>/`, fill in each section, put your
-input files next to this one, and run `/run-task workspace/tasks/<your-task-name>`.
+input files next to this one, and run it: in Claude Code, type
+`/run-task workspace/tasks/<your-task-name>`; in Codex, type
+`run-task workspace/tasks/<your-task-name>`.
 
 GOAL: <one sentence: the outcome you want, in terms of what you will do with it>
 

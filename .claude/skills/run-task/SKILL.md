@@ -18,8 +18,8 @@ list the folders in `workspace/tasks/` (skip `_template`) and ask which one to r
 
 Follow `.claude/skills/plan/SKILL.md`. Write `plan.md` in the run folder. Show the owner
 the summary and ask one question: "Go ahead with this plan?" (recommended: yes). Wait for
-the answer. If the owner said up front to go ahead without stopping, note that in the plan
-and continue.
+the answer, then set `APPROVED:` in the plan. If the owner said up front to go ahead
+without stopping, set `APPROVED: yes (given up front), <time>` and continue.
 
 ## 3. Execute and reflect, milestone by milestone
 
@@ -29,12 +29,17 @@ next-action ladder on anything else.
 
 ## 4. Write the report
 
-Write `report.md` in the run folder. Fill in every section. Leave nothing as a
-placeholder. The last two sections appear in this order, at the end:
+After the last milestone's reflect check, write `report.md` in the run folder. Fill in
+every section and leave nothing as a placeholder. Apply preferences.md to the order and
+length of the opening sections; the last two sections always stay at the end, in this
+order:
 
 ```
 # Run report: <task name>
 Run folder: <path>    Started: <time>    Finished: <time>
+
+## Needs your decision
+<the items the owner must decide or confirm before acting, most important first>
 
 ## What you got
 <each output file, one line each: path and what it is for>
@@ -42,18 +47,18 @@ Run folder: <path>    Started: <time>    Finished: <time>
 ## Checks performed
 <each reflect check: what was checked, how, and the result, with counts>
 
-## Things that need your eyes
-<data problems, judgment calls, anything the owner should confirm before acting>
-
 ## Lessons recorded
 <the titles of the entries appended to workspace/lessons.md>
 
 ## Estimated vs actual time
-| Milestone | Estimated (min) | Actual (min) |
+| Step | Estimated (min) | Actual (min) |
 |---|---|---|
+| Planning | n/a | <PLANNING_MINUTES> |
 | M1 ... | | |
-| Total agent time | | |
-| A person doing this by hand (estimate) | <MANUAL_ESTIMATE_MINUTES> | |
+| Total agent time (planning plus milestones) | | |
+| A person doing this by hand (estimate) | <MANUAL_ESTIMATE_MINUTES> | n/a |
+
+Waiting for the owner's "go ahead" is excluded from agent time.
 
 <one sentence: the gap between the estimate and the actual, and why>
 

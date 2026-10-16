@@ -7,6 +7,8 @@ INPUTS:
 - `sample_messages/` (in this folder): ten exported messages, one per `.txt` file, each
   with From, Date, and Subject lines. Swap in your own exported or pasted messages.
 - AS-OF DATE: Monday, October 12, 2026, 8:00 a.m.
+- Attachments are not included in the export. When a message refers to one, say so in
+  its triage reason and route the follow-up to the person who has it.
 
 DONE MEANS:
 - `output/triage.md`: a table with every message: file name, sender, subject, bucket, and
