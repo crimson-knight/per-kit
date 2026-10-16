@@ -12,10 +12,11 @@ INPUTS:
 
 DONE MEANS:
 - `output/triage.md`: a table with every message: file name, sender, subject, bucket, and
-  a one-line reason. Buckets: reply today, this week, delegate (name the role, such as
-  "crew lead" or "bookkeeper"), archive.
+  a one-line reason. Buckets: reply today (needs the owner's action or answer by the end
+  of the next business day), this week, delegate (name the role, such as "crew lead" or
+  "bookkeeper"), archive.
 - `output/replies/`: one draft reply per "reply today" message, named after the message
-  file, with To, Subject, and Body.
+  file with `.md` in place of `.txt`, with `To:`, `Subject:`, and the body.
 - `output/faq-candidates.md`: questions that appear in two or more messages, each with
   the message files it came from and a draft answer, or "owner to answer" when the
   messages do not contain the facts.
@@ -25,6 +26,8 @@ DONE MEANS:
 LIMITS:
 - Drafts only; nothing is sent.
 - Replies promise nothing the owner has not already offered in the messages or in
-  preferences.md: no prices, dates, or discounts that are not in the source.
+  preferences.md: no prices, dates, or discounts that are not in the source. Where a reply
+  needs a fact only the owner has (an arrival time, a price), write `[OWNER: <what to
+  fill in>]`. Describe actions as what the owner will do, never as already done.
 
 TIME: a person doing this by hand takes about 40 minutes.

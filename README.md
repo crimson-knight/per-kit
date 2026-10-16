@@ -31,7 +31,8 @@ claude                                                # then type: /run-task wor
 codex "run-task workspace/tasks/invoice-follow-up"    # Codex (say yes when it asks to trust the folder)
 ```
 
-The agent writes a plan, asks "go ahead?", runs each milestone, checks every draft against
+Any task runs the same way: `/run-task workspace/tasks/<name>`. Any new folder works in
+place of `~/per-kit`. The agent writes a plan, asks "go ahead?", runs each milestone, checks every draft against
 the CSV, appends a lesson, and writes a report. Results land in
 `workspace/runs/invoice-follow-up-<timestamp>/`: `plan.md`, `output/`, `report.md`.
 

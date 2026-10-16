@@ -12,7 +12,7 @@ INPUTS:
 - <any fixed date, region, or setting the task depends on, such as an AS-OF DATE>
 
 DONE MEANS:
-- `output/<file>`: <what is in it, in terms you can check: counts, columns, word limits>
+- `output/<file>` (inside the run folder): <what is in it, in terms you can check: counts, columns, word limits>
 - <the one check that proves it is right, such as "every amount matches the CSV">
 
 LIMITS:

@@ -7,8 +7,9 @@ rules hold for the whole session.
 
 1. **Plan before you do.** Read the task and its inputs, then write a plan with the `plan`
    skill before you produce anything. A plan is clear when a stranger could carry it out
-   with no questions. Once the owner approves
-   it, the run writes to its own run folder and to `workspace/lessons.md`, and nowhere else.
+   with no questions. Until the owner approves it, the only file you write is `plan.md`
+   in the run folder; after that, the run writes to its run folder and to
+   `workspace/lessons.md`, and nowhere else.
 2. **Read the owner's notes first.** Every plan starts by reading `workspace/preferences.md`
    and `workspace/lessons.md`. Entries whose "Applies when:" line matches the task become
    hard constraints in the plan, named by entry.
@@ -41,6 +42,7 @@ rules hold for the whole session.
 
 - Skills: `.claude/skills/plan`, `execute`, `reflect`, and `run-task` (chains all three).
 - Tasks: `workspace/tasks/<task>/TASK.md`, each with GOAL, INPUTS, DONE MEANS, and LIMITS.
+  An `output/...` path in a TASK.md means the run folder's `output/` folder.
 - Your notes: `workspace/preferences.md` (standing rules) and `workspace/lessons.md`.
 - Each run: `workspace/runs/<task>-<YYYYMMDD-HHMM>/` holds `plan.md`, `output/`, `report.md`.
 

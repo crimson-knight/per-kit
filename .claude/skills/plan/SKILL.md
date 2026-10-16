@@ -73,7 +73,7 @@ Write it to the run folder (`workspace/runs/<task>-<YYYYMMDD-HHMM>/plan.md`), or
 ```
 # PLAN: <goal>
 STARTED: <date and time, from the `date` command>
-PLANNING_MINUTES: <time from STARTED until you asked "Go ahead with this plan?">
+PLANNING_MINUTES: <filled in after the owner answers: STARTED until you asked "Go ahead?">
 APPROVED: <"yes, <time>" once the owner says go ahead; "pending" until then>
 GOAL: <one sentence>
 DONE_MEANS: <definition of done>

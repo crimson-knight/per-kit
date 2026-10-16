@@ -10,15 +10,19 @@ list the folders in `workspace/tasks/` (skip `_template`) and ask which one to r
 
 ## 1. Set up the run
 
-1. Read `<task>/TASK.md` and every input file it names.
-2. Run `date "+%Y%m%d-%H%M"` and create `workspace/runs/<task-name>-<that stamp>/` with
-   an `output/` folder inside it. Record the full start time with `date`.
+1. Run `date` first and keep the result: it is the run's STARTED time, and planning time
+   counts from here.
+2. Read `<task>/TASK.md` and every input file it names. Dates inside the task (such as an
+   AS-OF DATE) govern the work; the real date from `date` governs file names, the
+   lessons, and the report's times.
+3. Run `date "+%Y%m%d-%H%M"` and create `workspace/runs/<task-name>-<that stamp>/` with
+   an `output/` folder inside it. Every `output/...` path in the TASK.md lives there.
 
 ## 2. Plan
 
 Follow `.claude/skills/plan/SKILL.md`. Write `plan.md` in the run folder. Show the owner
 the summary and ask one question: "Go ahead with this plan?" (recommended: yes). Wait for
-the answer, then set `APPROVED:` in the plan. If the owner said up front to go ahead
+the answer, then set `APPROVED:` and `PLANNING_MINUTES:` in the plan. If the owner said up front to go ahead
 without stopping, set `APPROVED: yes (given up front), <time>` and continue.
 
 ## 3. Execute and reflect, milestone by milestone
@@ -29,7 +33,8 @@ next-action ladder on anything else.
 
 ## 4. Write the report
 
-After the last milestone's reflect check, write `report.md` in the run folder. Fill in
+After the last milestone's reflect check, run `date` for the finish time and write
+`report.md` in the run folder. Every time in the report comes from a `date` you ran. Fill in
 every section and leave nothing as a placeholder. Apply preferences.md to the order and
 length of the opening sections; the last two sections always stay at the end, in this
 order:
@@ -55,8 +60,9 @@ Run folder: <path>    Started: <time>    Finished: <time>
 |---|---|---|
 | Planning | n/a | <PLANNING_MINUTES> |
 | M1 ... | | |
-| Total agent time (planning plus milestones) | | |
+| Total agent time | <sum of milestone estimates> | <planning plus milestones> |
 
+Record minutes to one decimal place (0.5) so short runs still show a difference.
 A person doing this by hand: about <MANUAL_ESTIMATE_MINUTES> minutes (from TASK.md).
 Agent time excludes waiting for the owner's "go ahead".
 

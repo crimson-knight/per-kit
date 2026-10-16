@@ -42,9 +42,10 @@ WHY IT BROKE: <root cause>
 
 ## Step 5: Write a lesson
 
-Every run leaves at least one lesson in `workspace/lessons.md`. Write it when an
-assumption broke or a check caught a mistake, and in any case at the last milestone, so a
-run adds one to three entries in all. Add a new entry:
+Every run leaves one to three lessons in `workspace/lessons.md`. When an assumption broke
+or a check caught a mistake, decide whether it generalizes; fold related fixes into one
+lesson. If no lesson has been written by the last milestone, write one there. Add a new
+entry:
 
 ```
 ## <short title> (<YYYY-MM-DD>)

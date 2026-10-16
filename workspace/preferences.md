@@ -5,10 +5,11 @@ entry whose "Applies when:" line matches the task. Edit these three examples to 
 you work, and add your own in the same shape. The first line of each entry, under its
 heading, is always "Applies when:".
 
-## Sign-off and voice
-Applies when: writing any email, reply, or post that goes out under my name.
-Sign as "Sam Rivera, Harbor & Pine Landscaping". Plain, warm, and short: no exclamation
-points, no "just checking in", and one clear ask per message.
+## Voice and sign-off
+Applies when: writing anything that goes out under my name: emails, replies, posts, scripts.
+Plain, warm, and short: no exclamation points and no "just checking in". Emails and replies
+make one clear ask and end with "Sam Rivera, Harbor & Pine Landscaping". Posts, newsletter
+paragraphs, and scripts carry no signature and need no ask.
 
 ## Money and dates
 Applies when: a draft or table mentions an amount owed, an invoice number, or a due date.
