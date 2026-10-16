@@ -33,5 +33,5 @@ each other before anyone acts. It catches the assumption a single plan misses.
 Bring a run report. The "Estimated vs actual time" table and the "What this run could not
 do" list are the agenda: which of your weekly tasks to connect first, and what it saves.
 
-- Book a consultation: {{BOOKING_URL}}
+- Book a consultation: https://agentc.consulting/schedule_a_mission_briefing?ref=per-kit-next-steps
 - More experiments and write-ups: https://agentc.consulting/experiments?ref=per-kit

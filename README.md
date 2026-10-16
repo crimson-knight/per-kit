@@ -9,8 +9,10 @@ else is downloaded or installed, and nothing phones home.
 
 ## Install
 
+Release page, with the commit and hashes: https://github.com/crimson-knight/per-kit/releases/tag/v0.1.0
+
 ```sh
-sha256sum SHA256SUMS    # or: shasum -a 256 SHA256SUMS. Must match the release notes.
+sha256sum SHA256SUMS    # or: shasum -a 256 SHA256SUMS. Must match the release page.
 ./verify.sh             # checks every file against SHA256SUMS; must end RESULT: PASS
 ```
 
@@ -43,7 +45,8 @@ the CSV, appends a lesson, and writes a report. Results land in
 | `workspace/lessons.md` | grows by one or more "Applies when:" entries per run |
 | `workspace/tasks/` | invoice follow-up, lead list research (needs web access), content repurposing, inbox triage, and `_template/` for your own |
 | `NEXT-STEPS.md` | connecting real systems, scheduled runs, panel planning |
-| `verify.sh`, `install.sh` | integrity check and installer (`tools/` is for kit maintainers) |
+| `verify.sh`, `install.sh` | integrity check and installer |
+| `LICENSE`, `RELEASE.md` | MIT license; how maintainers publish a release |
 
 Your own data: set your name and sign-off in `preferences.md`, then replace a task's
 sample file and follow the note in its TASK.md, or copy `_template/`. Every report ends with
