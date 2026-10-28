@@ -17,6 +17,11 @@ list the folders in `workspace/tasks/` (skip `_template`) and ask which one to r
    lessons, and the report's times.
 3. Run `date "+%Y%m%d-%H%M"` and create `workspace/runs/<task-name>-<that stamp>/` with
    an `output/` folder inside it. Every `output/...` path in the TASK.md lives there.
+   Create it with `mkdir -p workspace/runs/<task-name>-<that stamp>/output` as a command of
+   its own, with the stamp typed out. Run every shell command from the kit folder, using
+   paths relative to it. The kit's `.claude/settings.json` pre-approves exactly these
+   steps (`date`, this `mkdir`, and writes inside `workspace/runs/` and to the two notes
+   files), so a first run asks the owner far less often.
 
 ## 2. Plan
 

@@ -1,0 +1,45 @@
+name: verify
+
+# Runs the same checks a newcomer runs, on every pull request and on main.
+# Plain git and the kit's own scripts only: no third-party actions.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out this commit with plain git
+        run: |
+          git init -q .
+          git fetch -q --depth 1 "https://github.com/${GITHUB_REPOSITORY}" "$GITHUB_SHA"
+          git checkout -q FETCH_HEAD
+
+      - name: SHA256SUMS lists every tracked file with its current hash
+        run: |
+          export LC_ALL=C
+          git ls-files | grep -v '^SHA256SUMS$' | sort | while IFS= read -r f; do
+            sha256sum "$f"
+          done > "$RUNNER_TEMP/SHA256SUMS.expected"
+          diff -u "$RUNNER_TEMP/SHA256SUMS.expected" SHA256SUMS
+
+      - name: Shell scripts parse
+        run: sh -n verify.sh && sh -n install.sh
+
+      - name: Claude Code project settings parse
+        run: jq -e '.permissions.allow | length > 0' .claude/settings.json
+
+      - name: verify.sh --strict passes
+        run: ./verify.sh --strict
+
+      - name: install.sh makes verified copies for Claude Code and Codex
+        run: |
+          ./install.sh "$RUNNER_TEMP/claude/per-kit"
+          ./install.sh --codex "$RUNNER_TEMP/codex/per-kit"
+          test -f "$RUNNER_TEMP/codex/per-kit/.agents/skills/run-task/SKILL.md"
+          test -f "$RUNNER_TEMP/claude/per-kit/.claude/settings.json"
