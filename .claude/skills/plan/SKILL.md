@@ -22,7 +22,9 @@ questions. That is the bar.
 3. Write each one into the plan's CONSTRAINTS list, citing the entry's heading. A plan
    with an empty CONSTRAINTS list has skipped this step; when nothing matches, write
    "none matched" and name the files you read.
-4. When instructions disagree, the TASK.md wins (LIMITS first), then preferences.md, then the
+4. When the inputs carry numbers, add this CONSTRAINT: "Every figure is reconciled against
+   its source, and a record whose numbers do not add up is held (source: reflect Step 1)."
+5. When instructions disagree, the TASK.md wins (LIMITS first), then preferences.md, then the
    skills' default formats (for example, a preference about report order changes the
    run report's section order). Record each such call in CONSTRAINTS. If a preference
    conflicts with the goal itself, put it in OPEN_QUESTIONS.
@@ -57,7 +59,8 @@ Each milestone is a unit one doer can finish and a checker can verify:
   status: todo
 ```
 
-Three to five milestones suits most business tasks. The run report is written after the
+Three to five milestones suits most business tasks. When the whole task fits in one step
+(run-task's short path), write exactly one milestone. The run report is written after the
 last milestone's reflect check, so it is not a milestone of its own.
 
 ## Step 5: Self-check

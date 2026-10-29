@@ -6,8 +6,8 @@ a clean checkout of `main`. Nothing here runs until the site's /experiments page
 Maintainer tools: `git`, `gh` (signed in as crimson-knight), `zip`/`unzip`, and
 `shasum` or `sha256sum` (each block picks whichever exists).
 
-Release identity: GitHub repository `crimson-knight/per-kit`, tag `v0.1.1`, archive
-`per-kit-v0.1.1.zip`.
+Release identity: GitHub repository `crimson-knight/per-kit`, tag `v0.1.2`, archive
+`per-kit-v0.1.2.zip`.
 
 ## 1. Regenerate and check SHA256SUMS
 
@@ -41,7 +41,7 @@ below, then rerun step 1.
 ```sh
 set -eu
 if command -v shasum >/dev/null 2>&1; then SHA="shasum -a 256"; else SHA=sha256sum; fi
-VERSION=v0.1.1
+VERSION=v0.1.2
 ./verify.sh
 grep -q "^## $VERSION" CHANGELOG.md
 git tag -a "$VERSION" -m "PER kit $VERSION"
@@ -57,7 +57,7 @@ echo "commit $COMMIT"; echo "zip $ZIP_SHA"; echo "sums $SUMS_SHA"
 ```sh
 set -eu
 if command -v shasum >/dev/null 2>&1; then SHA="shasum -a 256"; else SHA=sha256sum; fi
-VERSION=v0.1.1
+VERSION=v0.1.2
 T=$(mktemp -d)
 unzip -q "per-kit-$VERSION.zip" -d "$T"
 (cd "$T/per-kit" && ./verify.sh --strict)              # must end RESULT: PASS
@@ -69,7 +69,7 @@ rm -rf "$T"
 ```sh
 set -eu
 if command -v shasum >/dev/null 2>&1; then SHA="shasum -a 256"; else SHA=sha256sum; fi
-VERSION=v0.1.1
+VERSION=v0.1.2
 COMMIT=$(git rev-parse "$VERSION^{commit}")
 ZIP_SHA=$($SHA "per-kit-$VERSION.zip" | cut -d' ' -f1)
 SUMS_SHA=$($SHA SHA256SUMS | cut -d' ' -f1)

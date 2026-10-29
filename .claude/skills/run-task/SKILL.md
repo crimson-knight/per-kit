@@ -25,7 +25,27 @@ list the folders in `workspace/tasks/` (skip `_template`) and ask which one to r
 
 ## 2. Plan
 
-Follow `.claude/skills/plan/SKILL.md`. Write `plan.md` in the run folder. Show the owner
+First pick the path. Take the **short path** when all three hold:
+- every input is a file already in the task folder (no web research, no outside system);
+- one doer can write every output in one sitting, in one milestone;
+- nothing needs an owner decision before the work can start.
+
+Otherwise take the full path below. On the short path:
+- **Plan:** the same plan.md header (GOAL, DONE_MEANS, LIMITS word for word, CONSTRAINTS
+  from preferences and lessons), `PATH: short`, and one milestone M1 whose success
+  criteria are the TASK.md DONE MEANS. Ask "Go ahead?" as below, unless approval was given
+  up front.
+- **Execute M1 in one pass:** read each input once, write each output file once, then fix
+  with small edits.
+- **Reflect once, with one script:** write a single check script in the run folder that
+  runs reflect Step 1 (every figure reconciled, records that do not add up held) and
+  tests every DONE MEANS line it can. Run it, fix what it finds, run it again until it is
+  clean. Update the plan once, at the end, with M1's status, grade, evidence, and
+  `actual_minutes`.
+- **Lesson and report:** write one lesson (or confirm one) and the report below, with a
+  single milestone row in the time table.
+
+Full path: follow `.claude/skills/plan/SKILL.md`. Write `plan.md` in the run folder. Show the owner
 the summary and ask one question: "Go ahead with this plan?" (recommended: yes). Wait for
 the answer, then set `APPROVED:` and `PLANNING_MINUTES:` in the plan. If the owner said up front to go ahead
 without stopping, set `APPROVED: yes (given up front), <time>` and continue.

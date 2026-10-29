@@ -11,12 +11,12 @@ else is downloaded or installed, and nothing phones home.
 
 Release page, with the commit and hashes: https://github.com/crimson-knight/per-kit/releases/latest
 
-Download the `per-kit-<version>.zip` listed on that page (for example `per-kit-v0.1.1.zip`),
-then, with your version in place of `v0.1.1`:
+Download the `per-kit-<version>.zip` listed on that page (for example `per-kit-v0.1.2.zip`),
+then, with your version in place of `v0.1.2`:
 
 ```sh
-shasum -a 256 per-kit-v0.1.1.zip    # or sha256sum; must match the zip hash on the page
-unzip per-kit-v0.1.1.zip && cd per-kit
+shasum -a 256 per-kit-v0.1.2.zip    # or sha256sum; must match the zip hash on the page
+unzip per-kit-v0.1.2.zip && cd per-kit
 shasum -a 256 SHA256SUMS            # must match the SHA256SUMS hash on the page
 ./verify.sh --strict                # every file exactly as published; ends RESULT: PASS
 ```
