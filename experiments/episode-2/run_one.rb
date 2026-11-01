@@ -6,6 +6,7 @@
 require "json"
 require "fileutils"
 require "time"
+require "open3"
 
 KIT = File.expand_path("../..", __dir__)
 CELLS = ENV.fetch("PER_EXPERIMENT_CELLS", "/tmp/per-kit-episode-2/cells")
@@ -37,8 +38,8 @@ File.readlines("#{KIT}/SHA256SUMS", chomp: true).each do |line|
 end
 FileUtils.cp("#{KIT}/SHA256SUMS", "#{kit}/SHA256SUMS")
 FileUtils.mkdir_p("#{kit}/workspace/runs")
-pre_verify = `cd #{kit} && ./verify.sh --strict 2>&1`
-abort "the kit copy does not match SHA256SUMS; start from a fresh kit\n#{pre_verify}" unless $?.success?
+pre_verify, pre_status = Open3.capture2e("./verify.sh", "--strict", chdir: kit)
+abort "the kit copy does not match SHA256SUMS; start from a fresh kit\n#{pre_verify}" unless pre_status.success?
 
 FileUtils.mkdir_p(hidden)
 HIDDEN.each { |hidden_file| FileUtils.mv("#{kit}/#{hidden_file}", "#{hidden}/#{hidden_file}") if File.exist?("#{kit}/#{hidden_file}") }
@@ -99,8 +100,8 @@ put_back = ->(from, names) do
 end
 put_back.call(stash, LOOP_FILES) if arm == "B"
 put_back.call(hidden, HIDDEN)
-verify_out = `cd #{kit} && ./verify.sh 2>&1`
-verify_pass = $?.success?
+verify_out, verify_status = Open3.capture2e("./verify.sh", chdir: kit)
+verify_pass = verify_status.success?
 File.write("#{cell}/verify.txt", verify_out)
 
 meta = { task: task, arm: arm, rep: rep.to_i, model: MODEL, started: started.iso8601,

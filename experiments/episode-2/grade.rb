@@ -57,9 +57,10 @@ when "invoice-follow-up"
   group_totals = Hash.new(0.0)
   rows.each { |row| group_totals[group_of.call(row)] += row["balance"].to_f }
   total_lines = summary.to_s.lines.reject { |line| line =~ /INV-\d+/ }
+  # A total matches only as a whole number: "11,900.00" is not "1,900.00".
+  exact_figure = ->(line, value) { line.match?(/(?<![\d,.])#{Regexp.escape(money(value).delete("$").delete("-"))}(?![\d])/) }
   wrong_totals = %w[friendly firm final held].push("grace period", "not due").reject do |group|
-    figure = money(group_totals[group]).delete("$")
-    total_lines.any? { |line| line.downcase.include?(group) && line.include?(figure) }
+    total_lines.any? { |line| line.downcase.include?(group) && exact_figure.call(line, group_totals[group]) }
   end
   check.call("summary_group_totals_reconcile", summary && wrong_totals.empty?,
              "missing or wrong: #{wrong_totals.map { |group| "#{group} #{money(group_totals[group])}" }.join(', ')}")
@@ -76,7 +77,13 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
   check.call("data_problems_flag_dup_negative_noemail_badmath", unflagged.empty?, "unflagged #{unflagged.join(' ')}")
   draft_text = drafts.to_h { |path| [File.basename(path), File.read(path)] }
   slug_of = ->(name) { name.downcase.gsub("&", "and").gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "") }
-  draft_for = ->(name) { draft_text.find { |file, _| file.include?(slug_of.(name).split("-").first) } }
+  # A draft belongs to a customer only through its exact file name, <customer-name-slug>.md.
+  customer_of_file = rows.to_h { |row| ["#{slug_of.(row['customer_name'])}.md", row["customer_name"]] }
+  draft_for = ->(name) { draft_text.find { |file, _| file == "#{slug_of.(name)}.md" } }
+  unknown = draft_text.keys.reject { |file| customer_of_file.key?(file) }
+  check.call("every_draft_is_named_for_a_csv_customer", unknown.empty?, unknown.join(" "))
+  held_cited = draft_text.select { |_, text| must_flag.any? { |number| text.include?(number) } }.keys
+  check.call("no_draft_cites_a_held_invoice", held_cited.empty?, held_cited.join(" "))
   no_draft = ["Brightwater Cafe", "Kestrel Yoga Studio", "Westbrook Library Friends", "Northgate Fitness",
               "Riverside Montessori", "Pinecrest Realty", "Oak & Ember Bistro", "Summit Physical Therapy"]
   wrong = no_draft.select { |name| draft_for.(name) }
@@ -87,24 +94,46 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
   check.call("draft_for_every_overdue_customer", absent.empty?, "no draft and not held: #{absent.join(', ')}")
   cedar = draft_for.("Cedar Ridge HOA")&.last
   check.call("cedar_ridge_one_email_two_invoices", cedar.nil? || (cedar.include?("INV-1038") && cedar.include?("INV-1039")))
-  # Each figure must come from its own invoice's row: a line that names invoices may quote
-  # only those invoices' figures; any other line, only figures of the invoices the draft
-  # cites (or, when it cites none, of the rows for the address it is written to).
+  # A draft is read in sections: each section starts at a line that names one of its
+  # invoices and runs to the next such line. A section may quote only the figures of the
+  # invoices it names, and must quote that invoice's balance (and the amount received when
+  # part is paid). Lines before the first section may quote only cited invoices' figures.
   figures_of = ->(selected) { selected.flat_map { |row| %w[amount amount_paid balance].map { |col| money(row[col]) } }.uniq }
-  stray = draft_text.flat_map do |file, text|
-    cited = rows.select { |row| text.include?(row["invoice_number"]) }
-    cited = rows.select { |row| row["contact_email"] && text.include?(row["contact_email"]) } if cited.empty?
-    text.lines.flat_map do |line|
+  stray = []
+  unquoted = []
+  draft_text.each do |file, text|
+    customer = customer_of_file[file]
+    own_rows = rows.select { |row| row["customer_name"] == customer }
+    cited = own_rows.select { |row| text.include?(row["invoice_number"]) }
+    sections = [[cited, []]]
+    text.lines.each do |line|
       named = cited.select { |row| line.include?(row["invoice_number"]) }
-      allowed = figures_of.call(named.empty? ? cited : named)
-      money_figures(line).reject { |fig| allowed.include?(fig) }.map { |fig| "#{file}:#{fig}" }
+      sections << [named, []] unless named.empty?
+      sections.last[1] << line
+    end
+    sections.each do |named, lines|
+      body = lines.join
+      money_figures(body).reject { |fig| figures_of.call(named).include?(fig) }.each { |fig| stray << "#{file}:#{fig}" }
+    end
+    cited.each do |row|
+      body = sections.select { |named, _| named.include?(row) }.map { |_, lines| lines.join }.join
+      required = [money(row["balance"])]
+      required << money(row["amount_paid"]) if row["amount_paid"].to_f.positive?
+      missing = required - money_figures(body)
+      unquoted << "#{file}:#{row['invoice_number']}:#{missing.join('/')}" unless missing.empty?
     end
   end
   check.call("draft_amounts_match_csv_no_totals", !drafts.empty? && stray.empty?, stray.first(6).join(" "))
+  check.call("draft_quotes_each_balance_and_amount_received", !drafts.empty? && unquoted.empty?, unquoted.first(6).join(" "))
   heads = draft_text.reject { |_, text| text =~ /^\**To:?\**/i && text =~ /^\**Subject:?\**/i }.keys
   check.call("drafts_have_to_and_subject", !drafts.empty? && heads.empty?, heads.join(" "))
   emails = rows.map { |row| row["contact_email"] }.compact
-  bad_to = draft_text.reject { |_, text| emails.any? { |email| text.include?(email) } }.keys
+  # The To line must carry the address of the customer the draft is named for.
+  bad_to = draft_text.reject do |file, text|
+    to_line = text.lines.find { |line| line =~ /^\**To:?\**/i }.to_s
+    own = rows.select { |row| row["customer_name"] == customer_of_file[file] }.map { |row| row["contact_email"] }.compact
+    !own.empty? && own.any? { |email| to_line.include?(email) } && (emails - own).none? { |email| to_line.include?(email) }
+  end.keys
   check.call("draft_to_is_csv_email", !drafts.empty? && bad_to.empty?, bad_to.join(" "))
   final = draft_for.("Halverson Auto Body")&.last
   check.call("final_notice_asks_date_or_plan_call", final.nil? || final =~ /payment plan|call/i)
@@ -208,7 +237,8 @@ when "lead-list-research"
       http.open_timeout = 8
       http.read_timeout = 10
       response = http.request(Net::HTTP::Get.new(uri.request_uri, "User-Agent" => "AgentC-Consulting-research/1.0 (+https://agentc.consulting; agent_c@agentc.consulting)"))
-      response.code.to_i < 400 || [401, 403, 429].include?(response.code.to_i)
+      # Only a page that was actually retrieved counts; 401, 403 and 429 stay unverified.
+      response.code.to_i.between?(200, 399)
     rescue StandardError
       false
     end

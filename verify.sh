@@ -135,14 +135,17 @@ scan=$(mktemp) || { fail "cannot create a temporary file"; exit 1; }
 trap 'rm -f "$scan"' EXIT
 # --strict checks a fresh download, so it scans workspace/ too: a fresh copy has
 # nothing there beyond the listed files.
+# Finder's .DS_Store files are allowed outside --strict only.
 if [ "$strict" -eq 1 ]; then
   pruned_paths="-path ./.git"
+  ignored_name="-false"
 else
   pruned_paths="-path ./.git -o -path ./workspace"
+  ignored_name="-name .DS_Store"
 fi
 # shellcheck disable=SC2086
 if ! find . \( $pruned_paths \) -prune -o \
-     \( -type f -o -type l \) ! -name '.DS_Store' -print > "$scan"; then
+     \( -type f -o -type l \) ! \( $ignored_name \) -print > "$scan"; then
   fail "could not list every file in the kit (unreadable folder?)"
 fi
 unlisted_bad=0
