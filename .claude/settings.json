@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(date)",
+      "Bash(date *)",
+      "Bash(mkdir -p workspace/runs/*)",
+      "Edit(/workspace/runs/**)",
+      "Edit(/workspace/lessons.md)",
+      "Edit(/workspace/preferences.md)",
+      "Edit(workspace/runs/**)",
+      "Edit(workspace/lessons.md)",
+      "Edit(workspace/preferences.md)"
+    ]
+  }
+}

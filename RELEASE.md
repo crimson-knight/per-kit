@@ -6,8 +6,8 @@ a clean checkout of `main`. Nothing here runs until the site's /experiments page
 Maintainer tools: `git`, `gh` (signed in as crimson-knight), `zip`/`unzip`, and
 `shasum` or `sha256sum` (each block picks whichever exists).
 
-Release identity: GitHub repository `crimson-knight/per-kit`, tag `v0.1.0`, archive
-`per-kit-v0.1.0.zip`.
+Release identity: GitHub repository `crimson-knight/per-kit`, tag `v0.1.1`, archive
+`per-kit-v0.1.1.zip`.
 
 ## 1. Regenerate and check SHA256SUMS
 
@@ -31,18 +31,19 @@ git diff --cached --quiet || git commit -m "Regenerate SHA256SUMS"
 
 ## 2. Tag and build the archive
 
-The README already links the release page for this version
-(`https://github.com/crimson-knight/per-kit/releases/tag/v0.1.0`). The SHA256SUMS hash
-is published on that page and in the release notes, never inside a tracked file, because
-SHA256SUMS covers every tracked file. For a later version, update the version in the
-README's release line and in the blocks below, then rerun step 1.
+The README links the latest release page
+(`https://github.com/crimson-knight/per-kit/releases/latest`), so it needs no edit per
+version. The SHA256SUMS hash is published on that page and in the release notes, never
+inside a tracked file, because SHA256SUMS covers every tracked file. For a later version,
+update the version in CHANGELOG.md, its example in the README install block, and the blocks
+below, then rerun step 1.
 
 ```sh
 set -eu
 if command -v shasum >/dev/null 2>&1; then SHA="shasum -a 256"; else SHA=sha256sum; fi
-VERSION=v0.1.0
+VERSION=v0.1.1
 ./verify.sh
-grep -q "releases/tag/$VERSION" README.md
+grep -q "^## $VERSION" CHANGELOG.md
 git tag -a "$VERSION" -m "PER kit $VERSION"
 COMMIT=$(git rev-parse "$VERSION^{commit}")
 git archive --format=zip --prefix=per-kit/ -o "per-kit-$VERSION.zip" "$VERSION"
@@ -56,7 +57,7 @@ echo "commit $COMMIT"; echo "zip $ZIP_SHA"; echo "sums $SUMS_SHA"
 ```sh
 set -eu
 if command -v shasum >/dev/null 2>&1; then SHA="shasum -a 256"; else SHA=sha256sum; fi
-VERSION=v0.1.0
+VERSION=v0.1.1
 T=$(mktemp -d)
 unzip -q "per-kit-$VERSION.zip" -d "$T"
 (cd "$T/per-kit" && ./verify.sh --strict)              # must end RESULT: PASS
@@ -68,7 +69,7 @@ rm -rf "$T"
 ```sh
 set -eu
 if command -v shasum >/dev/null 2>&1; then SHA="shasum -a 256"; else SHA=sha256sum; fi
-VERSION=v0.1.0
+VERSION=v0.1.1
 COMMIT=$(git rev-parse "$VERSION^{commit}")
 ZIP_SHA=$($SHA "per-kit-$VERSION.zip" | cut -d' ' -f1)
 SUMS_SHA=$($SHA SHA256SUMS | cut -d' ' -f1)
@@ -89,8 +90,6 @@ Verify before running anything:
 
 More: https://agentc.consulting/experiments?ref=per-kit
 NOTES
-gh repo create crimson-knight/per-kit --public --source=. --remote=origin \
-  --description "Plan, execute, reflect: a free loop kit for Claude Code and Codex"
 git push origin main "$VERSION"
 gh release create "$VERSION" "per-kit-$VERSION.zip" SHA256SUMS \
   --title "PER kit $VERSION" --notes-file release-notes.md --verify-tag
