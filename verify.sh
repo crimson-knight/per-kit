@@ -56,6 +56,10 @@ else
 fi
 
 # 2. Listed files
+if [ -L SHA256SUMS ]; then
+  fail "SHA256SUMS is a symlink"
+  exit 1
+fi
 if [ ! -f SHA256SUMS ]; then
   fail "SHA256SUMS is missing"
   printf '\nRESULT: FAIL (%s problem)\n' "$failures"
@@ -152,10 +156,10 @@ fi || fail "could not list every file in the kit (unreadable folder?)"
 unlisted_bad=0
 while IFS= read -r f; do
   f=${f#./}
-  [ "$f" = "SHA256SUMS" ] && continue
   if [ -L "$f" ]; then
     fail "symlink in the kit: $f"; unlisted_bad=1; continue
   fi
+  [ "$f" = "SHA256SUMS" ] && continue
   if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then
     continue
   fi
