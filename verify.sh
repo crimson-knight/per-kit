@@ -21,20 +21,18 @@
 #   5. Each shipped task has GOAL, INPUTS, DONE MEANS, and LIMITS.
 #   6. If install.sh --codex was run, .agents/skills matches .claude/skills exactly.
 #
-# Exit status 0 means every check passed. Any failure exits 1 (fail closed).
+# Exit status 0 means every check passed. Any failure exits 1 (fail closed); a bad
+# argument (anything but no argument or exactly --strict) exits 2.
 # The kit downloads nothing and has no third-party dependencies; the only trust root is
 # the SHA-256 of SHA256SUMS itself, printed at the end, which must match the release page.
 
 set -u
 strict=0
-if [ "$#" -gt 1 ]; then
+if [ "$#" -eq 1 ] && [ "$1" = --strict ]; then
+  strict=1
+elif [ "$#" -ne 0 ]; then
   printf 'usage: ./verify.sh [--strict]\n' >&2; exit 2
 fi
-case "${1:-}" in
-  --strict) strict=1 ;;
-  '') ;;
-  *) printf 'usage: ./verify.sh [--strict]\n' >&2; exit 2 ;;
-esac
 LC_ALL=C
 export LC_ALL
 
