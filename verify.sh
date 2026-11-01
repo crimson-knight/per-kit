@@ -137,17 +137,11 @@ trap 'rm -f "$scan"' EXIT
 # nothing there beyond the listed files.
 # Finder's .DS_Store files are allowed outside --strict only.
 if [ "$strict" -eq 1 ]; then
-  pruned_paths="-path ./.git"
-  ignored_name="-false"
+  find . -path ./.git -prune -o \( -type f -o -type l \) -print > "$scan"
 else
-  pruned_paths="-path ./.git -o -path ./workspace"
-  ignored_name="-name .DS_Store"
-fi
-# shellcheck disable=SC2086
-if ! find . \( $pruned_paths \) -prune -o \
-     \( -type f -o -type l \) ! \( $ignored_name \) -print > "$scan"; then
-  fail "could not list every file in the kit (unreadable folder?)"
-fi
+  find . \( -path ./.git -o -path ./workspace \) -prune -o \
+       \( -type f -o -type l \) ! -name '.DS_Store' -print > "$scan"
+fi || fail "could not list every file in the kit (unreadable folder?)"
 unlisted_bad=0
 while IFS= read -r f; do
   f=${f#./}
@@ -165,10 +159,8 @@ while IFS= read -r f; do
       else
         note "your Claude Code permission choices (allowed): $f"
       fi ;;
-    .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md)
-      if [ "$strict" -eq 1 ]; then
-        fail "not part of a fresh download: $f"; unlisted_bad=1
-      fi ;;
+    # install.sh --codex makes these copies, then runs --strict; step 6 checks their content.
+    .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
     *) fail "unlisted file: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
   esac
 done < "$scan"

@@ -15,9 +15,6 @@ add up, and on the three offline tasks it cost 2.5 times the direct prompt.
   one milestone runs in one pass with one check script and one report, instead of a
   plan, execute, reflect cycle per milestone.
 - `CLAUDE.md` and `AGENTS.md` rules 3 and 4 name both changes.
-- **`experiments/episode-2/`:** the experiment's results (`EXPERIMENT.md`, `RERUN_v012.md`)
-  and its harness (`run_one.rb`, `batch.sh`, `grade.rb`, `collect.rb`), with a README on how
-  to rerun it.
 
 ## v0.1.1 (unreleased)
 
