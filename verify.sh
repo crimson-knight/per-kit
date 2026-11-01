@@ -58,6 +58,7 @@ fi
 # 2. Listed files
 if [ -L SHA256SUMS ]; then
   fail "SHA256SUMS is a symlink"
+  printf '\nRESULT: FAIL (%s problem)\n' "$failures"
   exit 1
 fi
 if [ ! -f SHA256SUMS ]; then
