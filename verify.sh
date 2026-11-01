@@ -3,6 +3,7 @@
 #
 # Usage: ./verify.sh            check a working copy (your own edits to the notes are allowed)
 #        ./verify.sh --strict   check a fresh download: every file exactly as published
+#                               (a git checkout's .git folder is outside the kit and not checked)
 #
 # Checks, in order:
 #   1. A SHA-256 tool is available (sha256sum, or shasum -a 256).
@@ -26,6 +27,9 @@
 
 set -u
 strict=0
+if [ "$#" -gt 1 ]; then
+  printf 'usage: ./verify.sh [--strict]\n' >&2; exit 2
+fi
 case "${1:-}" in
   --strict) strict=1 ;;
   '') ;;
@@ -161,7 +165,8 @@ while IFS= read -r f; do
     fail "symlink in the kit: $f"; unlisted_bad=1; continue
   fi
   [ "$f" = "SHA256SUMS" ] && continue
-  if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then
+  # ENVIRON keeps the name literal; awk -v would turn "  if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then56" into "." first.
+  if VERIFY_PATH="$f" awk 'substr($0, 67) == ENVIRON["VERIFY_PATH"] { found = 1 } END { exit !found }' SHA256SUMS; then
     continue
   fi
   case "$f" in
@@ -228,6 +233,7 @@ printf '\nSHA256SUMS sha256: %s\n' "$sums_hash"
 printf 'Compare it with the value on the release page before you trust this copy.\n'
 if [ "$failures" -eq 0 ]; then
   [ "$strict" -eq 1 ] && printf 'Mode: --strict (every file exactly as published)\n'
+  [ "$strict" -eq 1 ] && [ -e .git ] && printf 'Note: this is a git checkout; its .git folder is not part of the kit and was not checked.\n'
   printf 'RESULT: PASS\n'
   exit 0
 fi

@@ -18,7 +18,7 @@ then, with your version in place of `v0.1.2`:
 shasum -a 256 per-kit-v0.1.2.zip    # or sha256sum; must match the zip hash on the page
 unzip per-kit-v0.1.2.zip && cd per-kit
 shasum -a 256 SHA256SUMS            # must match the SHA256SUMS hash on the page
-./verify.sh --strict                # every file exactly as published; ends RESULT: PASS
+./verify.sh --strict                # every kit file exactly as published; ends RESULT: PASS
 ```
 
 Then pick one. Each verifies again before and after it copies, and takes a few seconds:
