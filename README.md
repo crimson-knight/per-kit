@@ -93,6 +93,7 @@ estimated and actual time.
 | `workspace/tasks/` | invoice follow-up, lead list research (needs web access), content repurposing, inbox triage, and `_template/` for your own |
 | `NEXT-STEPS.md` | connecting real systems, scheduled runs, panel planning |
 | `verify.sh`, `install.sh` | integrity check and installer |
+| `experiments/episode-2/` | the loop against one direct prompt: results, and the harness to rerun it |
 | `CHANGELOG.md` | what changed in each release |
 | `LICENSE`, `RELEASE.md` | MIT license; how maintainers publish a release |
 
