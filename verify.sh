@@ -165,7 +165,7 @@ while IFS= read -r f; do
     fail "symlink in the kit: $f"; unlisted_bad=1; continue
   fi
   [ "$f" = "SHA256SUMS" ] && continue
-  # ENVIRON keeps the name literal; awk -v would turn "  if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then56" into "." first.
+  # ENVIRON keeps the name literal; awk -v would expand backslash escapes in it.
   if VERIFY_PATH="$f" awk 'substr($0, 67) == ENVIRON["VERIFY_PATH"] { found = 1 } END { exit !found }' SHA256SUMS; then
     continue
   fi
