@@ -10,7 +10,8 @@
 #      you are meant to edit (workspace/preferences.md, workspace/lessons.md) are
 #      reported as "edited by you" when they differ (a failure with --strict); any
 #      other mismatch fails.
-#   3. Every file outside workspace/ is listed in SHA256SUMS and none is a symlink, so no
+#   3. Every file outside workspace/ (with --strict, every file) is listed in SHA256SUMS
+#      and none is a symlink, so no
 #      unlisted skill, script, or instruction file can ride along. Allowed extras:
 #      .claude/settings.local.json (Claude Code writes it when you approve a permission;
 #      a failure with --strict) and the four .agents/skills copies that install.sh
@@ -132,7 +133,15 @@ fi
 # that install.sh --codex makes (checked against .claude/skills in step 6).
 scan=$(mktemp) || { fail "cannot create a temporary file"; exit 1; }
 trap 'rm -f "$scan"' EXIT
-if ! find . \( -path './.git' -o -path './workspace' \) -prune -o \
+# --strict checks a fresh download, so it scans workspace/ too: a fresh copy has
+# nothing there beyond the listed files.
+if [ "$strict" -eq 1 ]; then
+  pruned_paths="-path ./.git"
+else
+  pruned_paths="-path ./.git -o -path ./workspace"
+fi
+# shellcheck disable=SC2086
+if ! find . \( $pruned_paths \) -prune -o \
      \( -type f -o -type l \) ! -name '.DS_Store' -print > "$scan"; then
   fail "could not list every file in the kit (unreadable folder?)"
 fi
@@ -141,7 +150,7 @@ while IFS= read -r f; do
   f=${f#./}
   [ "$f" = "SHA256SUMS" ] && continue
   if [ -L "$f" ]; then
-    fail "symlink outside workspace/: $f"; unlisted_bad=1; continue
+    fail "symlink in the kit: $f"; unlisted_bad=1; continue
   fi
   if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then
     continue
@@ -154,10 +163,16 @@ while IFS= read -r f; do
         note "your Claude Code permission choices (allowed): $f"
       fi ;;
     .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
-    *) fail "unlisted file outside workspace/: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
+    *) fail "unlisted file: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
   esac
 done < "$scan"
-[ "$unlisted_bad" -eq 0 ] && pass "no unlisted files or symlinks outside workspace/"
+if [ "$unlisted_bad" -eq 0 ]; then
+  if [ "$strict" -eq 1 ]; then
+    pass "no unlisted files or symlinks anywhere in the kit"
+  else
+    pass "no unlisted files or symlinks outside workspace/"
+  fi
+fi
 
 # 4. Skills
 for name in plan execute reflect run-task; do

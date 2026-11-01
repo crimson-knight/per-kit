@@ -48,7 +48,7 @@ Offline tasks (invoice, inbox and content together):
 | | v0.1.1 | v0.1.2 |
 |---|---|---|
 | Loop cost compared with the direct prompt | 2.5× ($1.33 vs $0.54, 6 runs each) | **2.2×** ($2.43 vs $1.11, 12 runs each) |
-| Loop time compared with the direct prompt | 1.5× (25.2 vs 16.7 min) | **1.4×** (38.3 vs 27.9 min) |
+| Loop time compared with the direct prompt | 1.5× (25.3 vs 16.7 min) | **1.4×** (38.3 vs 27.9 min) |
 | Loop pass rate | 5 of 6 | **12 of 12** |
 
 Web searches per lead-list run in v0.1.2: loop 22, 18, 77 and 12; direct 9, 19, 15 and 37. Yesterday the direct prompt had the outlier (129 searches, $3.27). Today the loop did: 77 searches cost $2.41 on run A-3. Neither arm is the steadier one on research.

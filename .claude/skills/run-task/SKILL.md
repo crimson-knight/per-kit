@@ -26,7 +26,9 @@ list the folders in `workspace/tasks/` (skip `_template`) and ask which one to r
 ## 2. Plan
 
 First pick the path. Take the **short path** when all three hold:
-- every input is a file already in the task folder (no web research, no outside system);
+- every input is a file already in the kit: the task folder, `workspace/preferences.md`,
+  `workspace/lessons.md`, and any value the TASK.md states (such as an as-of date). No web
+  research and no outside system;
 - one doer can write every output in one sitting, in one milestone;
 - nothing needs an owner decision before the work can start.
 

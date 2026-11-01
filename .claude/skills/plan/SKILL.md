@@ -22,7 +22,7 @@ questions. That is the bar.
 3. Write each one into the plan's CONSTRAINTS list, citing the entry's heading. A plan
    with an empty CONSTRAINTS list has skipped this step; when nothing matches, write
    "none matched" and name the files you read.
-4. When the inputs carry numbers, add this CONSTRAINT: "Every figure is reconciled against
+4. When the inputs or the outputs carry numbers, add this CONSTRAINT: "Every figure is reconciled against
    its source, and a record whose numbers do not add up is held (source: reflect Step 1)."
 5. When instructions disagree, the TASK.md wins (LIMITS first), then preferences.md, then the
    skills' default formats (for example, a preference about report order changes the

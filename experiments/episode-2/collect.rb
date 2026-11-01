@@ -1,17 +1,31 @@
 # Grades every finished cell and writes runs.tsv (one row per run) plus grades.json.
 # Usage: /usr/bin/ruby collect.rb <out dir>   reads the cells in $PER_EXPERIMENT_CELLS
+# Set PER_EXPERIMENT_EXPECTED_CELLS to the number of runs you started; collection stops
+# with an error when any cell is incomplete or the count differs.
 require "json"
 
 CELLS = ENV.fetch("PER_EXPERIMENT_CELLS", "/tmp/per-kit-episode-2/cells")
 out_dir = ARGV.fetch(0)
 rows = []
 grades = {}
-Dir["#{CELLS}/*"].sort.each do |cell|
-  next unless File.exist?("#{cell}/meta.json")
+cell_dirs = Dir["#{CELLS}/*"].select { |path| File.directory?(path) }.sort
+incomplete = cell_dirs.reject { |cell| File.exist?("#{cell}/meta.json") }
+abort "collect: cells without meta.json (run unfinished or failed): #{incomplete.map { |cell| File.basename(cell) }.join(' ')}" unless incomplete.empty?
+expected = ENV["PER_EXPERIMENT_EXPECTED_CELLS"]
+if expected && cell_dirs.size != expected.to_i
+  abort "collect: expected #{expected} cells, found #{cell_dirs.size}"
+end
+cell_dirs.each do |cell|
   meta = JSON.parse(File.read("#{cell}/meta.json"))
   result = JSON.parse(File.read("#{cell}/result.json")) rescue {}
   grade_file = "#{cell}/grade.json"
-  system("/usr/bin/ruby #{__dir__}/grade.rb #{cell} > #{grade_file}") unless File.exist?(grade_file)
+  unless File.exist?(grade_file)
+    graded = system("/usr/bin/ruby", "#{__dir__}/grade.rb", cell, out: grade_file)
+    unless graded
+      File.delete(grade_file) if File.exist?(grade_file)
+      abort "collect: grade.rb failed for #{File.basename(cell)}"
+    end
+  end
   grade = JSON.parse(File.read(grade_file))
   grades[File.basename(cell)] = grade
   usage = (result["modelUsage"] || {}).values

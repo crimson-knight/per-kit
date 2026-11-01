@@ -61,8 +61,17 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
   check.call("draft_for_every_overdue_customer", absent.empty?, "no draft and not held: #{absent.join(', ')}")
   cedar = draft_for.("Cedar Ridge HOA")&.last
   check.call("cedar_ridge_one_email_two_invoices", cedar.nil? || (cedar.include?("INV-1038") && cedar.include?("INV-1039")))
-  allowed = rows.flat_map { |row| %w[amount amount_paid balance].map { |col| money(row[col]) } }.uniq
-  stray = draft_text.flat_map { |file, text| money_figures(text).reject { |fig| allowed.include?(fig) }.map { |fig| "#{file}:#{fig}" } }
+  # Each draft's figures must come from the rows it is about: the invoices it cites, or,
+  # when it cites none, the rows for the address it is written to.
+  allowed_for = lambda do |text|
+    cited = rows.select { |row| text.include?(row["invoice_number"]) }
+    cited = rows.select { |row| row["contact_email"] && text.include?(row["contact_email"]) } if cited.empty?
+    cited.flat_map { |row| %w[amount amount_paid balance].map { |col| money(row[col]) } }.uniq
+  end
+  stray = draft_text.flat_map do |file, text|
+    allowed = allowed_for.call(text)
+    money_figures(text).reject { |fig| allowed.include?(fig) }.map { |fig| "#{file}:#{fig}" }
+  end
   check.call("draft_amounts_match_csv_no_totals", !drafts.empty? && stray.empty?, stray.first(6).join(" "))
   heads = draft_text.reject { |_, text| text =~ /^\**To:?\**/i && text =~ /^\**Subject:?\**/i }.keys
   check.call("drafts_have_to_and_subject", !drafts.empty? && heads.empty?, heads.join(" "))
