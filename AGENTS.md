@@ -15,10 +15,12 @@ rules hold for the whole session.
    and `workspace/lessons.md`. Entries whose "Applies when:" line matches the task become
    hard constraints in the plan, named by entry.
 3. **One milestone at a time.** Run milestones in order with the `execute` skill. Finish
-   and check one before you start the next.
+   and check one before you start the next. A small offline task whose plan fits in one
+   milestone takes `run-task`'s short path: one pass, one check script, one report.
 4. **A self-report is a claim.** "Done" means a person can use the result. Check each
    result by using it (open the file, recount the numbers, follow the link) with the
-   `reflect` skill before you mark a milestone done.
+   `reflect` skill before you mark a milestone done. Every figure in a draft must trace to
+   its source, and a record whose numbers do not add up is held, never drafted.
 5. **Drafts only.** Nothing leaves this folder. Write emails, posts, and replies as files
    for the owner to review and send.
 6. **Ask one question, with a recommended answer.** When you need a decision, check

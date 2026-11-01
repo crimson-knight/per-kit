@@ -38,6 +38,9 @@ and report what you need to continue.
 
 - Write every output under the run folder's `output/` directory.
 - Honor the LIMITS exactly. Drafts stay drafts: nothing is sent, posted, or submitted.
+- Before you draft from a record that carries numbers, check that its figures agree with
+  each other (reflect Step 1). A record that does not add up is held: list it as a data
+  problem and draft nothing for it.
 - Keep a short note of each assumption the work tested and what actually happened.
 
 ## Step 5: Capture, then hand off

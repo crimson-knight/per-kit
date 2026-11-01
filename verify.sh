@@ -3,6 +3,7 @@
 #
 # Usage: ./verify.sh            check a working copy (your own edits to the notes are allowed)
 #        ./verify.sh --strict   check a fresh download: every file exactly as published
+#                               (a git checkout's .git folder is outside the kit and not checked)
 #
 # Checks, in order:
 #   1. A SHA-256 tool is available (sha256sum, or shasum -a 256).
@@ -10,7 +11,8 @@
 #      you are meant to edit (workspace/preferences.md, workspace/lessons.md) are
 #      reported as "edited by you" when they differ (a failure with --strict); any
 #      other mismatch fails.
-#   3. Every file outside workspace/ is listed in SHA256SUMS and none is a symlink, so no
+#   3. Every file outside workspace/ (with --strict, every file) is listed in SHA256SUMS
+#      and none is a symlink, so no
 #      unlisted skill, script, or instruction file can ride along. Allowed extras:
 #      .claude/settings.local.json (Claude Code writes it when you approve a permission;
 #      a failure with --strict) and the four .agents/skills copies that install.sh
@@ -19,17 +21,18 @@
 #   5. Each shipped task has GOAL, INPUTS, DONE MEANS, and LIMITS.
 #   6. If install.sh --codex was run, .agents/skills matches .claude/skills exactly.
 #
-# Exit status 0 means every check passed. Any failure exits 1 (fail closed).
+# Exit status 0 means every check passed. Any failure exits 1 (fail closed); a bad
+# argument (anything but no argument or exactly --strict) exits 2.
 # The kit downloads nothing and has no third-party dependencies; the only trust root is
 # the SHA-256 of SHA256SUMS itself, printed at the end, which must match the release page.
 
 set -u
 strict=0
-case "${1:-}" in
-  --strict) strict=1 ;;
-  '') ;;
-  *) printf 'usage: ./verify.sh [--strict]\n' >&2; exit 2 ;;
-esac
+if [ "$#" -eq 1 ] && [ "$1" = --strict ]; then
+  strict=1
+elif [ "$#" -ne 0 ]; then
+  printf 'usage: ./verify.sh [--strict]\n' >&2; exit 2
+fi
 LC_ALL=C
 export LC_ALL
 
@@ -55,6 +58,11 @@ else
 fi
 
 # 2. Listed files
+if [ -L SHA256SUMS ]; then
+  fail "SHA256SUMS is a symlink"
+  printf '\nRESULT: FAIL (%s problem)\n' "$failures"
+  exit 1
+fi
 if [ ! -f SHA256SUMS ]; then
   fail "SHA256SUMS is missing"
   printf '\nRESULT: FAIL (%s problem)\n' "$failures"
@@ -132,18 +140,31 @@ fi
 # that install.sh --codex makes (checked against .claude/skills in step 6).
 scan=$(mktemp) || { fail "cannot create a temporary file"; exit 1; }
 trap 'rm -f "$scan"' EXIT
-if ! find . \( -path './.git' -o -path './workspace' \) -prune -o \
-     \( -type f -o -type l \) ! -name '.DS_Store' -print > "$scan"; then
-  fail "could not list every file in the kit (unreadable folder?)"
+# --strict checks a fresh download, so it scans workspace/ too: a fresh copy has
+# nothing there beyond the listed files.
+# The list below is read line by line, so a file name containing a newline could pose
+# as two names; refuse any such name outright.
+newline_names=$(find . -path ./.git -prune -o -name "*
+*" -print | wc -l)
+if [ "$newline_names" -ne 0 ]; then
+  fail "a file name contains a newline (not part of the kit)"
 fi
+# Finder's .DS_Store files are allowed outside --strict only.
+if [ "$strict" -eq 1 ]; then
+  find . -path ./.git -prune -o \( -type f -o -type l \) -print > "$scan"
+else
+  find . \( -path ./.git -o -path ./workspace \) -prune -o \
+       \( -type f -o -type l \) ! -name '.DS_Store' -print > "$scan"
+fi || fail "could not list every file in the kit (unreadable folder?)"
 unlisted_bad=0
 while IFS= read -r f; do
   f=${f#./}
-  [ "$f" = "SHA256SUMS" ] && continue
   if [ -L "$f" ]; then
-    fail "symlink outside workspace/: $f"; unlisted_bad=1; continue
+    fail "symlink in the kit: $f"; unlisted_bad=1; continue
   fi
-  if awk -v p="$f" 'substr($0, 67) == p { found = 1 } END { exit !found }' SHA256SUMS; then
+  [ "$f" = "SHA256SUMS" ] && continue
+  # ENVIRON keeps the name literal; awk -v would expand backslash escapes in it.
+  if VERIFY_PATH="$f" awk 'substr($0, 67) == ENVIRON["VERIFY_PATH"] { found = 1 } END { exit !found }' SHA256SUMS; then
     continue
   fi
   case "$f" in
@@ -153,11 +174,18 @@ while IFS= read -r f; do
       else
         note "your Claude Code permission choices (allowed): $f"
       fi ;;
+    # install.sh --codex makes these copies, then runs --strict; step 6 checks their content.
     .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
-    *) fail "unlisted file outside workspace/: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
+    *) fail "unlisted file: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
   esac
 done < "$scan"
-[ "$unlisted_bad" -eq 0 ] && pass "no unlisted files or symlinks outside workspace/"
+if [ "$unlisted_bad" -eq 0 ]; then
+  if [ "$strict" -eq 1 ]; then
+    pass "no unlisted files or symlinks anywhere in the kit"
+  else
+    pass "no unlisted files or symlinks outside workspace/"
+  fi
+fi
 
 # 4. Skills
 for name in plan execute reflect run-task; do
@@ -203,6 +231,7 @@ printf '\nSHA256SUMS sha256: %s\n' "$sums_hash"
 printf 'Compare it with the value on the release page before you trust this copy.\n'
 if [ "$failures" -eq 0 ]; then
   [ "$strict" -eq 1 ] && printf 'Mode: --strict (every file exactly as published)\n'
+  [ "$strict" -eq 1 ] && [ -e .git ] && printf 'Note: this is a git checkout; its .git folder is not part of the kit and was not checked.\n'
   printf 'RESULT: PASS\n'
   exit 0
 fi

@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.2 (unreleased)
+
+From the Episode 2 experiment (2026-10-28): 16 headless runs of the four tasks, loop
+against one direct prompt. The loop drafted a reminder for an invoice whose numbers do not
+add up, and on the three offline tasks it cost 2.5 times the direct prompt.
+
+- **reflect checks every figure (new Step 1).** A check script tests each source record's
+  own arithmetic (amount minus paid equals balance, and so on), holds every record that
+  does not reconcile, and traces every figure in every draft back to the source. A draft
+  for a record that does not add up grades the milestone "not met". `execute` and `plan`
+  apply the same rule up front.
+- **run-task short path.** A task whose inputs are all local files and whose plan fits in
+  one milestone runs in one pass with one check script and one report, instead of a
+  plan, execute, reflect cycle per milestone.
+- `CLAUDE.md` and `AGENTS.md` rules 3 and 4 name both changes.
+
 ## v0.1.1 (unreleased)
 
 From timing the README's first run as a newcomer, once with Claude Code and once with Codex.
