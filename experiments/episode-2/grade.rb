@@ -59,8 +59,12 @@ when "invoice-follow-up"
   total_lines = summary.to_s.lines.reject { |line| line =~ /INV-\d+/ }
   # A total matches only as a whole number: "11,900.00" is not "1,900.00".
   exact_figure = ->(line, value) { line.match?(/(?<![\d,.])#{Regexp.escape(money(value).delete("$").delete("-"))}(?![\d])/) }
+  # Each group's total line must carry exactly one figure, and it must be that group's total.
   wrong_totals = %w[friendly firm final held].push("grace period", "not due").reject do |group|
-    total_lines.any? { |line| line.downcase.include?(group) && exact_figure.call(line, group_totals[group]) }
+    total_lines.any? do |line|
+      figures = line.scan(/-?\$?-?\d[\d,]*\.\d{2}/)
+      line.downcase.include?(group) && figures.size == 1 && exact_figure.call(line, group_totals[group])
+    end
   end
   check.call("summary_group_totals_reconcile", summary && wrong_totals.empty?,
              "missing or wrong: #{wrong_totals.map { |group| "#{group} #{money(group_totals[group])}" }.join(', ')}")
@@ -90,8 +94,8 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
   check.call("no_draft_for_held_grace_or_not_due", wrong.empty?, "drafted #{wrong.join(', ')}")
   needs = ["Halverson Auto Body", "Greenleaf Property Management", "Cedar Ridge HOA",
            "Lakeview Veterinary Clinic", "Maple Street Dental"]
-  absent = needs.reject { |name| draft_for.(name) || problems.to_s.include?(name) }
-  check.call("draft_for_every_overdue_customer", absent.empty?, "no draft and not held: #{absent.join(', ')}")
+  absent = needs.reject { |name| draft_for.(name) }
+  check.call("draft_for_every_overdue_customer", absent.empty?, "no draft: #{absent.join(', ')}")
   cedar = draft_for.("Cedar Ridge HOA")&.last
   check.call("cedar_ridge_one_email_two_invoices", cedar.nil? || (cedar.include?("INV-1038") && cedar.include?("INV-1039")))
   # A draft is read in sections: each section starts at a line that names one of its
@@ -105,6 +109,11 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
     customer = customer_of_file[file]
     own_rows = rows.select { |row| row["customer_name"] == customer }
     cited = own_rows.select { |row| text.include?(row["invoice_number"]) }
+    # Every overdue, unheld invoice of this customer must be cited, and no other customer's.
+    eligible = own_rows.reject { |row| must_flag.include?(row["invoice_number"]) || %w[grace\ period not\ due].include?(group_of.call(row)) }
+    (eligible - cited).each { |row| unquoted << "#{file}:#{row['invoice_number']}:not cited" }
+    foreign = rows.reject { |row| row["customer_name"] == customer }.map { |row| row["invoice_number"] }.uniq.select { |number| text.include?(number) }
+    foreign.each { |number| unquoted << "#{file}:#{number}:another customer's invoice" }
     sections = [[cited, []]]
     text.lines.each do |line|
       named = cited.select { |row| line.include?(row["invoice_number"]) }
@@ -120,19 +129,23 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
       required = [money(row["balance"])]
       required << money(row["amount_paid"]) if row["amount_paid"].to_f.positive?
       missing = required - money_figures(body)
+      due = Date.parse(row["due_date"])
+      missing << "due #{row['due_date']}" unless body.include?(due.strftime("%B %-d, %Y")) || body.include?(due.strftime("%b %-d, %Y"))
       unquoted << "#{file}:#{row['invoice_number']}:#{missing.join('/')}" unless missing.empty?
     end
   end
   check.call("draft_amounts_match_csv_no_totals", !drafts.empty? && stray.empty?, stray.first(6).join(" "))
-  check.call("draft_quotes_each_balance_and_amount_received", !drafts.empty? && unquoted.empty?, unquoted.first(6).join(" "))
+  check.call("draft_cites_each_invoice_with_balance_received_and_due_date", !drafts.empty? && unquoted.empty?, unquoted.first(6).join(" "))
   heads = draft_text.reject { |_, text| text =~ /^\**To:?\**/i && text =~ /^\**Subject:?\**/i }.keys
   check.call("drafts_have_to_and_subject", !drafts.empty? && heads.empty?, heads.join(" "))
   emails = rows.map { |row| row["contact_email"] }.compact
   # The To line must carry the address of the customer the draft is named for.
+  # The To field's complete address list must be exactly the customer's CSV address(es).
   bad_to = draft_text.reject do |file, text|
     to_line = text.lines.find { |line| line =~ /^\**To:?\**/i }.to_s
-    own = rows.select { |row| row["customer_name"] == customer_of_file[file] }.map { |row| row["contact_email"] }.compact
-    !own.empty? && own.any? { |email| to_line.include?(email) } && (emails - own).none? { |email| to_line.include?(email) }
+    addresses = to_line.scan(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/).map(&:downcase).uniq.sort
+    own = rows.select { |row| row["customer_name"] == customer_of_file[file] }.map { |row| row["contact_email"] }.compact.map(&:downcase).uniq.sort
+    !own.empty? && addresses == own
   end.keys
   check.call("draft_to_is_csv_email", !drafts.empty? && bad_to.empty?, bad_to.join(" "))
   final = draft_for.("Halverson Auto Body")&.last
@@ -232,13 +245,24 @@ when "lead-list-research"
     uri = URI(url) rescue nil
     next false unless uri&.host
     begin
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-      http.open_timeout = 8
-      http.read_timeout = 10
-      response = http.request(Net::HTTP::Get.new(uri.request_uri, "User-Agent" => "AgentC-Consulting-research/1.0 (+https://agentc.consulting; agent_c@agentc.consulting)"))
-      # Only a page that was actually retrieved counts; 401, 403 and 429 stay unverified.
-      response.code.to_i.between?(200, 399)
+      # Follow up to five redirects; only a final page retrieved with 2xx counts.
+      retrieved = false
+      6.times do
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.scheme == "https"
+        http.open_timeout = 8
+        http.read_timeout = 10
+        response = http.request(Net::HTTP::Get.new(uri.request_uri, "User-Agent" => "AgentC-Consulting-research/1.0 (+https://agentc.consulting; agent_c@agentc.consulting)"))
+        code = response.code.to_i
+        if code.between?(300, 399) && response["location"]
+          uri = URI.join(uri.to_s, response["location"])
+          break unless %w[http https].include?(uri.scheme)
+          next
+        end
+        retrieved = code.between?(200, 299)
+        break
+      end
+      retrieved
     rescue StandardError
       false
     end

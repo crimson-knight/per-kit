@@ -165,7 +165,10 @@ while IFS= read -r f; do
       else
         note "your Claude Code permission choices (allowed): $f"
       fi ;;
-    .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md) ;;
+    .agents/skills/plan/SKILL.md|.agents/skills/execute/SKILL.md|.agents/skills/reflect/SKILL.md|.agents/skills/run-task/SKILL.md)
+      if [ "$strict" -eq 1 ]; then
+        fail "not part of a fresh download: $f"; unlisted_bad=1
+      fi ;;
     *) fail "unlisted file: $f (not part of the kit; if one of your own tools wrote it, move it out of this folder)"; unlisted_bad=1 ;;
   esac
 done < "$scan"

@@ -39,7 +39,7 @@ cell_dirs.each do |cell|
     "run_id" => File.basename(cell), "task" => meta["task"], "arm" => meta["arm"] == "A" ? "A_per_skills" : "B_direct_prompt",
     "rep" => meta["rep"], "model" => meta["model"], "verify_sh" => meta["verify_pass"] ? "PASS" : "FAIL",
     "done_means_checks" => "#{grade['passed']}/#{grade['total']}",
-    "task_pass" => (meta["verify_pass"] && failed.empty? && !meta["timed_out"] && cli_ok) ? "PASS" : "FAIL",
+    "task_pass" => (meta["verify_pass"] && failed.empty? && !meta["timed_out"] && cli_ok && Array(meta["arm_b_collisions"]).empty?) ? "PASS" : "FAIL",
     "wall_minutes" => meta["wall_minutes"], "turns" => result["num_turns"],
     "input_tokens" => sum.("inputTokens"), "output_tokens" => sum.("outputTokens"),
     "cache_read_tokens" => sum.("cacheReadInputTokens"), "cache_write_tokens" => sum.("cacheCreationInputTokens"), "web_searches" => sum.("webSearchRequests"),

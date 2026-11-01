@@ -111,5 +111,6 @@ meta = { task: task, arm: arm, rep: rep.to_i, model: MODEL, started: started.iso
          prompt: prompt }
 File.write("#{cell}/meta.json", JSON.pretty_generate(meta))
 puts JSON.generate(meta.reject { |k, _| k == :prompt })
-# A run that timed out or whose CLI failed exits non-zero, so batch.sh reports it.
-exit 1 if timed_out || cli_exit_status != 0
+# A run that timed out, whose CLI failed, that failed verify.sh, or whose arm B wrote over
+# a moved kit file exits non-zero, so batch.sh reports it.
+exit 1 if timed_out || cli_exit_status != 0 || !verify_pass || !collisions.empty?
