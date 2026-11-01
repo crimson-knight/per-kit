@@ -35,8 +35,8 @@ First pick the path. Take the **short path** when all three hold:
 Otherwise take the full path below. On the short path:
 - **Plan:** the same plan.md header (GOAL, DONE_MEANS, LIMITS word for word, CONSTRAINTS
   from preferences and lessons), `PATH: short`, and one milestone M1 whose success
-  criteria are the TASK.md DONE MEANS. Ask "Go ahead?" as below, unless approval was given
-  up front.
+  criteria are the TASK.md DONE MEANS. Ask "Go ahead?" and record `APPROVED:` and
+  `PLANNING_MINUTES:` exactly as the full path does below, including the up-front case.
 - **Execute M1 in one pass:** read each input once, write each output file once, then fix
   with small edits.
 - **Reflect once, with one script:** write a single check script in the run folder that

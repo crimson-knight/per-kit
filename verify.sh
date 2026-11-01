@@ -135,6 +135,13 @@ scan=$(mktemp) || { fail "cannot create a temporary file"; exit 1; }
 trap 'rm -f "$scan"' EXIT
 # --strict checks a fresh download, so it scans workspace/ too: a fresh copy has
 # nothing there beyond the listed files.
+# The list below is read line by line, so a file name containing a newline could pose
+# as two names; refuse any such name outright.
+newline_names=$(find . -path ./.git -prune -o -name "*
+*" -print | wc -l)
+if [ "$newline_names" -ne 0 ]; then
+  fail "a file name contains a newline (not part of the kit)"
+fi
 # Finder's .DS_Store files are allowed outside --strict only.
 if [ "$strict" -eq 1 ]; then
   find . -path ./.git -prune -o \( -type f -o -type l \) -print > "$scan"
