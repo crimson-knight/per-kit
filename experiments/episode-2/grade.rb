@@ -2,6 +2,7 @@
 # Usage: /usr/bin/ruby grade.rb <cell dir>   prints JSON {task, arm, rep, checks: [{id, ok, detail}]}
 require "json"
 require "csv"
+require "date"
 require "net/http"
 require "uri"
 
@@ -19,10 +20,12 @@ check.call("run_folder_has_output", Dir.exist?(out), run_dir.to_s.sub(kit + "/",
 
 def money(value)
   whole, cents = format("%.2f", value.to_f.abs).split(".")
-  "$#{whole.reverse.scan(/\d{1,3}/).join(",").reverse}.#{cents}"
+  sign = value.to_f.negative? ? "-" : ""
+  "#{sign}$#{whole.reverse.scan(/\d{1,3}/).join(",").reverse}.#{cents}"
 end
+# Keeps the sign: "-$150.00" and "$-150.00" both read as "-$150.00".
 def money_figures(text)
-  text.scan(/-?\$-?[\d,]+(?:\.\d{2})?/).map { |figure| figure.delete("-") }
+  text.scan(/-?\$-?[\d,]+(?:\.\d{2})?/).map { |figure| figure.include?("-") ? "-#{figure.delete("-")}" : figure }
 end
 
 case task
@@ -37,6 +40,29 @@ when "invoice-follow-up"
   missing = summary ? numbers.reject { |number| summary.include?(number) } : numbers
   check.call("summary_lists_every_invoice", missing.empty?, "missing #{missing.join(' ')}")
   check.call("summary_total_reconciles", summary&.include?("18,300.50"), "expects $18,300.50")
+  # The six group totals, recomputed from the CSV: tier by days past due on the as-of
+  # date, with every row that has a data problem counted only under "held".
+  as_of = Date.new(2026, 10, 12)
+  held_numbers = %w[INV-1022 INV-1027 INV-1035 INV-1042]
+  group_of = lambda do |row|
+    next "held" if held_numbers.include?(row["invoice_number"])
+    days = (as_of - Date.parse(row["due_date"])).to_i
+    if days.negative? then "not due"
+    elsif days < 7 then "grace period"
+    elsif days < 30 then "friendly"
+    elsif days < 60 then "firm"
+    else "final"
+    end
+  end
+  group_totals = Hash.new(0.0)
+  rows.each { |row| group_totals[group_of.call(row)] += row["balance"].to_f }
+  total_lines = summary.to_s.lines.reject { |line| line =~ /INV-\d+/ }
+  wrong_totals = %w[friendly firm final held].push("grace period", "not due").reject do |group|
+    figure = money(group_totals[group]).delete("$")
+    total_lines.any? { |line| line.downcase.include?(group) && line.include?(figure) }
+  end
+  check.call("summary_group_totals_reconcile", summary && wrong_totals.empty?,
+             "missing or wrong: #{wrong_totals.map { |group| "#{group} #{money(group_totals[group])}" }.join(', ')}")
 expected_tier = { "INV-1019" => /final/i, "INV-1030" => /firm/i, "INV-1038" => /firm/i, "INV-1039" => /firm/i,
                   "INV-1040" => /friendly/i, "INV-1041" => /friendly/i, "INV-1042" => /held/i,
                   "INV-1044" => /grace/i, "INV-1046" => /not due/i, "INV-1027" => /held/i, "INV-1035" => /held/i }
@@ -61,16 +87,18 @@ check.call("summary_tier_per_row_correct", summary && wrong_tier.empty?, "wrong:
   check.call("draft_for_every_overdue_customer", absent.empty?, "no draft and not held: #{absent.join(', ')}")
   cedar = draft_for.("Cedar Ridge HOA")&.last
   check.call("cedar_ridge_one_email_two_invoices", cedar.nil? || (cedar.include?("INV-1038") && cedar.include?("INV-1039")))
-  # Each draft's figures must come from the rows it is about: the invoices it cites, or,
-  # when it cites none, the rows for the address it is written to.
-  allowed_for = lambda do |text|
+  # Each figure must come from its own invoice's row: a line that names invoices may quote
+  # only those invoices' figures; any other line, only figures of the invoices the draft
+  # cites (or, when it cites none, of the rows for the address it is written to).
+  figures_of = ->(selected) { selected.flat_map { |row| %w[amount amount_paid balance].map { |col| money(row[col]) } }.uniq }
+  stray = draft_text.flat_map do |file, text|
     cited = rows.select { |row| text.include?(row["invoice_number"]) }
     cited = rows.select { |row| row["contact_email"] && text.include?(row["contact_email"]) } if cited.empty?
-    cited.flat_map { |row| %w[amount amount_paid balance].map { |col| money(row[col]) } }.uniq
-  end
-  stray = draft_text.flat_map do |file, text|
-    allowed = allowed_for.call(text)
-    money_figures(text).reject { |fig| allowed.include?(fig) }.map { |fig| "#{file}:#{fig}" }
+    text.lines.flat_map do |line|
+      named = cited.select { |row| line.include?(row["invoice_number"]) }
+      allowed = figures_of.call(named.empty? ? cited : named)
+      money_figures(line).reject { |fig| allowed.include?(fig) }.map { |fig| "#{file}:#{fig}" }
+    end
   end
   check.call("draft_amounts_match_csv_no_totals", !drafts.empty? && stray.empty?, stray.first(6).join(" "))
   heads = draft_text.reject { |_, text| text =~ /^\**To:?\**/i && text =~ /^\**Subject:?\**/i }.keys

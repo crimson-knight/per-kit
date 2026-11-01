@@ -19,7 +19,8 @@ against its TASK.md's DONE MEANS.
 - `batch.sh <rep> <task> ...` runs arm A and arm B of each named task at the same time.
 - `grade.rb <cell>` checks one cell's outputs against its task's DONE MEANS and LIMITS. It
   prints JSON with one entry per check.
-- `collect.rb <out dir>` grades every finished cell. It writes `runs.tsv` (one row per run,
+- `collect.rb <out dir>` grades every cell again (set `PER_EXPERIMENT_EXPECTED_CELLS` to the
+  number of runs; it stops on a missing, unfinished or failed cell). It writes `runs.tsv` (one row per run,
   with cost, minutes, tokens and checks) and `grades.json`.
 
 ## Rerun it
@@ -32,7 +33,7 @@ cd experiments/episode-2
 export PER_EXPERIMENT_CELLS=/tmp/per-kit-episode-2/cells   # the default; keep it outside ~/.claude
 sh batch.sh 1 invoice-follow-up inbox-triage               # 4 runs: both tasks, both arms, rep 1
 sh batch.sh 2 invoice-follow-up inbox-triage               # rep 2
-/usr/bin/ruby collect.rb /tmp/per-kit-episode-2            # writes runs.tsv and grades.json there
+PER_EXPERIMENT_EXPECTED_CELLS=8 /usr/bin/ruby collect.rb /tmp/per-kit-episode-2   # 8 runs above; writes runs.tsv and grades.json there
 ```
 
 - The four task names are `invoice-follow-up`, `inbox-triage`, `content-repurposing` and

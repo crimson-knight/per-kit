@@ -6,6 +6,10 @@ here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
 cells=${PER_EXPERIMENT_CELLS:-/tmp/per-kit-episode-2/cells}
 mkdir -p "$cells" || exit 1
 log="$cells/../batch.log"
+if [ "$#" -lt 2 ]; then
+  echo "usage: sh batch.sh <rep> <task> [<task> ...]" >&2
+  exit 2
+fi
 rep=$1; shift
 pids=""
 for t in "$@"; do

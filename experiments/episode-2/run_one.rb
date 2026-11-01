@@ -68,8 +68,12 @@ out_path = "#{cell}/result.json"
 pid = Process.spawn(env, *cmd, chdir: kit, out: out_path, err: "#{cell}/stderr.txt", in: File::NULL)
 timed_out = false
 deadline = started + TIMEOUT_S
+cli_exit_status = nil
 loop do
-  break if Process.wait(pid, Process::WNOHANG)
+  if Process.wait(pid, Process::WNOHANG)
+    cli_exit_status = $?.exitstatus
+    break
+  end
   if Time.now > deadline
     timed_out = true
     Process.kill("TERM", pid) rescue nil
@@ -101,7 +105,10 @@ File.write("#{cell}/verify.txt", verify_out)
 
 meta = { task: task, arm: arm, rep: rep.to_i, model: MODEL, started: started.iso8601,
          finished: finished.iso8601, wall_minutes: ((finished - started) / 60.0).round(2),
-         timed_out: timed_out, verify_pass: verify_pass, arm_b_collisions: collisions,
+         timed_out: timed_out, cli_exit_status: cli_exit_status, verify_pass: verify_pass,
+         arm_b_collisions: collisions,
          prompt: prompt }
 File.write("#{cell}/meta.json", JSON.pretty_generate(meta))
 puts JSON.generate(meta.reject { |k, _| k == :prompt })
+# A run that timed out or whose CLI failed exits non-zero, so batch.sh reports it.
+exit 1 if timed_out || cli_exit_status != 0
